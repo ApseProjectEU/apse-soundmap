@@ -20,30 +20,30 @@ body{font-family:'Arial',sans-serif;height:100vh;overflow:hidden;background:#f8f
 .form-group input,.form-group textarea,.form-group select{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;transition:border 0.3s}
 .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#145C3A;outline:none}
 .form-group textarea{resize:vertical;min-height:90px}
-.form-hint{font-size:11px;color:#666;margin-top:6px;line-height:1.4;background:#f0f9ff;padding:10px;border-radius:6px;border-left:3px solid #145C3A}
+.form-hint{font-size:11px;color:#666;margin-top:6px;line-height:1.4}
 .form-actions{display:flex;gap:12px;margin-top:24px}
 .btn{padding:14px 28px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;transition:all 0.3s}
 .btn-primary{background:#145C3A;color:white}
 .btn-primary:hover{background:#0d3d26;transform:translateY(-1px)}
 .btn-secondary{background:#ccc;color:#333}
 .btn-secondary:hover{background:#bbb}
-.btn-danger{background:#dc3545;color:white;padding:10px 18px;font-size:12px}
+.btn-danger{background:#dc3545;color:white;padding:10px 18px;font-size:13px}
 .btn-danger:hover{background:#c82333}
-.btn-edit{background:#ffc107;color:#000;padding:10px 18px;font-size:12px;margin-right:6px}
+.btn-edit{background:#ffc107;color:#000;padding:10px 18px;font-size:13px;margin-right:6px}
 .btn-edit:hover{background:#e0a800}
-.popup-title{font-size:17px;font-weight:bold;margin-bottom:10px;color:#145C3A}
-.popup-desc{font-size:13px;color:#555;margin-bottom:14px;line-height:1.5}
-.popup-audio{margin:14px 0}
-.popup-audio iframe{width:100%;border:none;border-radius:6px}
+.btn-play{background:#145C3A;color:white;padding:16px 32px;font-size:16px;font-weight:700;border-radius:10px;text-align:center;display:block;margin:16px 0;text-decoration:none;transition:all 0.3s;border:none;cursor:pointer;width:100%}
+.btn-play:hover{background:#0d3d26;transform:translateY(-2px);box-shadow:0 4px 12px rgba(20,92,58,0.3)}
+.popup-title{font-size:18px;font-weight:bold;margin-bottom:10px;color:#145C3A}
+.popup-desc{font-size:14px;color:#555;margin-bottom:16px;line-height:1.6}
 .popup-actions{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
-.category-badge{display:inline-block;padding:5px 12px;border-radius:14px;font-size:11px;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px}
+.category-badge{display:inline-block;padding:6px 14px;border-radius:14px;font-size:11px;font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
 .badge-geophony{background:#d4edda;color:#155724}
 .badge-biophony{background:#cce5ff;color:#004085}
 .badge-anthrophony{background:#fff3cd;color:#856404}
 .badge-sound_pollution{background:#f8d7da;color:#721c24}
 .badge-soundscapes{background:#e2d9f3;color:#4a148c}
 .leaflet-popup-content-wrapper{border-radius:14px;padding:4px}
-.leaflet-popup-content{margin:18px;min-width:300px}
+.leaflet-popup-content{margin:20px;min-width:300px}
 </style>
 </head>
 <body>
@@ -65,12 +65,9 @@ Click anywhere to add sound markers
 <textarea id="description" required placeholder="Describe the soundscape..."></textarea>
 </div>
 <div class="form-group">
-<label>Archive.org Audio URL *</label>
-<input type="url" id="audioUrl" required placeholder="https://archive.org/details/...">
-<div class="form-hint"><strong>📌 Paste ANY Archive.org link format:</strong><br>
-• https://archive.org/details/collection/file.mp3<br>
-• https://archive.org/download/collection/file.mp3<br>
-The map will auto-convert to working embed!</div>
+<label>Audio URL *</label>
+<input type="url" id="audioUrl" required placeholder="https://...">
+<div class="form-hint">Any audio link: Archive.org, Google Drive, Dropbox, direct MP3...</div>
 </div>
 <div class="form-group">
 <label>Category *</label>
@@ -104,33 +101,22 @@ const categoryLabels={
 geophony:'Geophony',biophony:'Biophony',anthrophony:'Anthrophony',
 sound_pollution:'Sound Pollution',soundscapes:'Soundscapes'
 };
-function convertToArchiveEmbed(url){
-let embedUrl=url;
-if(url.includes('archive.org/details/')){
-embedUrl=url.replace('/details/','/embed/');
-}else if(url.includes('archive.org/download/')){
-embedUrl=url.replace('/download/','/embed/');
-}else if(!url.includes('archive.org/embed/')){
-return url;
-}
-return embedUrl.split('?')[0];
-}
 function getIcon(cat){
 return L.icon({iconUrl:icons[cat],iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34]});
 }
 function saveMarkers(){
 localStorage.setItem('soundMarkers',JSON.stringify(markers));
 }
+function playAudio(url){
+window.open(url,'_blank','width=600,height=200');
+}
 function addMarkerToMap(data){
 const marker=L.marker([data.lat,data.lng],{icon:getIcon(data.category)}).addTo(map);
-const embedUrl=convertToArchiveEmbed(data.audioUrl);
 const popup=`
 <span class="category-badge badge-${data.category}">${categoryLabels[data.category]}</span>
 <div class="popup-title">${data.title}</div>
 <div class="popup-desc">${data.description}</div>
-<div class="popup-audio">
-<iframe src="${embedUrl}" width="100%" height="50" frameborder="0" allowfullscreen></iframe>
-</div>
+<button class="btn-play" onclick="playAudio('${data.audioUrl}')">🔊 PLAY AUDIO</button>
 <div class="popup-actions">
 <button class="btn btn-edit" onclick="editMarker('${data.id}')">✏️ Edit</button>
 <button class="btn btn-danger" onclick="deleteMarker('${data.id}')">🗑️ Delete</button>
