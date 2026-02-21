@@ -37,7 +37,7 @@ body{font-family:'Arial',sans-serif;height:100vh;overflow:hidden}
 </head>
 <body>
 <div id="map"></div>
-<div class="instruction-panel">🎧 Click on the map to add a sound marker<br><small>Paste normal Google Drive share links - auto-converted!</small></div>
+<div class="instruction-panel">🎧 Click on the map to add a sound marker<br><small>Paste Archive.org links - auto-converted!</small></div>
 <div class="modal" id="markerModal">
 <div class="modal-content">
 <div class="modal-header" id="modalTitle">Add Sound Marker</div>
@@ -51,8 +51,8 @@ body{font-family:'Arial',sans-serif;height:100vh;overflow:hidden}
 <textarea id="description" required></textarea>
 </div>
 <div class="form-group">
-<label>Audio URL (paste any Google Drive share link)</label>
-<input type="url" id="audioUrl" required placeholder="https://drive.google.com/file/d/...">
+<label>Audio URL (Archive.org link)</label>
+<input type="url" id="audioUrl" required placeholder="https://archive.org/details/...">
 </div>
 <div class="form-group">
 <label>Category</label>
@@ -82,12 +82,9 @@ const icons={
   soundscapes:'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="25" height="41"%3E%3Cpath d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.4 12.5 28.5 12.5 28.5S25 20.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="%236f42c1"/%3E%3Ccircle cx="12.5" cy="12.5" r="6" fill="white"/%3E%3C/svg%3E'
 };
 
-function convertDriveUrl(url){
-  if(url.includes('drive.google.com')){
-    const match=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if(match&&match[1]){
-      return 'https://drive.google.com/uc?export=open&id='+match[1];
-    }
+function convertAudioUrl(url){
+  if(url.includes('archive.org/details/')){
+    return url.replace('/details/','/download/');
   }
   return url;
 }
@@ -102,7 +99,7 @@ function saveMarkers(){
 
 function addMarkerToMap(data){
   const marker=L.marker([data.lat,data.lng],{icon:getIcon(data.category)}).addTo(map);
-  const audioUrl=convertDriveUrl(data.audioUrl);
+  const audioUrl=convertAudioUrl(data.audioUrl);
   const popup=`<div class="popup-title">${data.title}</div><div class="popup-desc">${data.description}</div><div class="popup-audio"><audio controls><source src="${audioUrl}" type="audio/mpeg"></audio></div><div class="popup-actions"><button class="btn btn-edit" onclick="editMarker('${data.id}')">Edit</button><button class="btn btn-danger" onclick="deleteMarker('${data.id}')">Delete</button></div>`;
   marker.bindPopup(popup);
   marker._id=data.id;
