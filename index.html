@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APSE Sound Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Arial',sans-serif;height:100vh;overflow:hidden}
+#map{width:100%;height:100vh}
+.instruction-panel{position:absolute;top:20px;left:60px;background:rgba(255,255,255,0.95);padding:15px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;font-size:14px;color:#333}
+.modal{display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-content{background:white;padding:30px;border-radius:12px;width:90%;max-width:500px;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.modal-header{font-size:20px;font-weight:bold;margin-bottom:20px;color:#145C3A}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;margin-bottom:5px;font-weight:600;color:#333;font-size:13px}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px;border:2px solid #ddd;border-radius:6px;font-size:14px;font-family:inherit}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-actions{display:flex;gap:10px;margin-top:20px}
+.btn{padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s}
+.btn-primary{background:#145C3A;color:white}
+.btn-primary:hover{background:#0d3d26}
+.btn-secondary{background:#ccc;color:#333}
+.btn-secondary:hover{background:#bbb}
+.btn-danger{background:#dc3545;color:white;padding:8px 16px;font-size:12px}
+.btn-danger:hover{background:#c82333}
+.btn-edit{background:#ffc107;color:#000;padding:8px 16px;font-size:12px;margin-right:5px}
+.btn-edit:hover{background:#e0a800}
+.popup-title{font-size:16px;font-weight:bold;margin-bottom:8px;color:#145C3A}
+.popup-desc{font-size:13px;color:#666;margin-bottom:12px;line-height:1.4}
+.popup-audio{margin-bottom:12px}
+.popup-audio audio{width:100%}
+.popup-actions{display:flex;gap:5px}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="instruction-panel">🎧 Click on the map to add a sound marker<br><small>Paste normal Google Drive share links - auto-converted!</small></div>
+<div class="modal" id="markerModal">
+<div class="modal-content">
+<div class="modal-header" id="modalTitle">Add Sound Marker</div>
+<form id="markerForm">
+<div class="form-group">
+<label>Title</label>
+<input type="text" id="title" required>
+</div>
+<div class="form-group">
+<label>Description</label>
+<textarea id="description" required></textarea>
+</div>
+<div class="form-group">
+<label>Audio URL (paste any Google Drive share link)</label>
+<input type="url" id="audioUrl" required placeholder="https://drive.google.com/file/d/...">
+</div>
+<div class="form-group">
+<label>Category</label>
+<select id="category" required>
+<option value="geophony">Geophony (Green)</option>
+<option value="biophony">Biophony (Blue)</option>
+<option value="anthrophony">Anthrophony (Orange)</option>
+<option value="sound_pollution">Sound Pollution (Red)</option>
+<option value="soundscapes">Soundscapes (Purple)</option>
+</select>
+</div>
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">Save Marker</button>
+<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+</div>
+</form>
+</div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let map, markers=[], currentMarkerId=null, currentLatLng=null;
+const icons={
+  geophony:'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="25" height="41"%3E%3Cpath d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.4 12.5 28.5 12.5 28.5S25 20.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="%2328a745"/%3E%3Ccircle cx="12.5" cy="12.5" r="6" fill="white"/%3E%3C/svg%3E',
+  biophony:'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="25" height="41"%3E%3Cpath d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.4 12.5 28.5 12.5 28.5S25 20.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="%23007bff"/%3E%3Ccircle cx="12.5" cy="12.5" r="6" fill="white"/%3E%3C/svg%3E',
+  anthrophony:'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="25" height="41"%3E%3Cpath d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.4 12.5 28.5 12.5 28.5S25 20.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="%23fd7e14"/%3E%3Ccircle cx="12.5" cy="12.5" r="6" fill="white"/%3E%3C/svg%3E',
+  sound_pollution:'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="25" height="41"%3E%3Cpath d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.4 12.5 28.5 12.5 28.5S25 20.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="%23dc3545"/%3E%3Ccircle cx="12.5" cy="12.5" r="6" fill="white"/%3E%3C/svg%3E',
+  soundscapes:'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="25" height="41"%3E%3Cpath d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.4 12.5 28.5 12.5 28.5S25 20.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="%236f42c1"/%3E%3Ccircle cx="12.5" cy="12.5" r="6" fill="white"/%3E%3C/svg%3E'
+};
+
+function convertDriveUrl(url){
+  if(url.includes('drive.google.com')){
+    const match=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if(match&&match[1]){
+      return 'https://drive.google.com/uc?export=open&id='+match[1];
+    }
+  }
+  return url;
+}
+
+function getIcon(cat){
+  return L.icon({iconUrl:icons[cat],iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34]});
+}
+
+function saveMarkers(){
+  localStorage.setItem('soundMarkers',JSON.stringify(markers));
+}
+
+function addMarkerToMap(data){
+  const marker=L.marker([data.lat,data.lng],{icon:getIcon(data.category)}).addTo(map);
+  const audioUrl=convertDriveUrl(data.audioUrl);
+  const popup=`<div class="popup-title">${data.title}</div><div class="popup-desc">${data.description}</div><div class="popup-audio"><audio controls><source src="${audioUrl}" type="audio/mpeg"></audio></div><div class="popup-actions"><button class="btn btn-edit" onclick="editMarker('${data.id}')">Edit</button><button class="btn btn-danger" onclick="deleteMarker('${data.id}')">Delete</button></div>`;
+  marker.bindPopup(popup);
+  marker._id=data.id;
+  return marker;
+}
+
+function closeModal(){
+  document.getElementById('markerModal').classList.remove('active');
+}
+
+function editMarker(id){
+  const data=markers.find(m=>m.id===id);
+  if(!data)return;
+  currentMarkerId=id;
+  currentLatLng={lat:data.lat,lng:data.lng};
+  document.getElementById('modalTitle').textContent='Edit Sound Marker';
+  document.getElementById('title').value=data.title;
+  document.getElementById('description').value=data.description;
+  document.getElementById('audioUrl').value=data.audioUrl;
+  document.getElementById('category').value=data.category;
+  document.getElementById('markerModal').classList.add('active');
+}
+
+function deleteMarker(id){
+  if(!confirm('Delete this marker?'))return;
+  markers=markers.filter(m=>m.id!==id);
+  map.eachLayer(l=>{if(l._id===id)map.removeLayer(l)});
+  saveMarkers();
+}
+
+window.addEventListener('load',function(){
+  markers=JSON.parse(localStorage.getItem('soundMarkers')||'[]');
+  
+  map=L.map('map').setView([39.5,22.3],7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap'
+  }).addTo(map);
+  
+  markers.forEach(addMarkerToMap);
+  
+  map.on('click',function(e){
+    currentLatLng=e.latlng;
+    currentMarkerId=null;
+    document.getElementById('modalTitle').textContent='Add Sound Marker';
+    document.getElementById('markerForm').reset();
+    document.getElementById('markerModal').classList.add('active');
+  });
+  
+  document.getElementById('markerForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    const data={
+      id:currentMarkerId||Date.now().toString(),
+      lat:currentLatLng.lat,
+      lng:currentLatLng.lng,
+      title:document.getElementById('title').value,
+      description:document.getElementById('description').value,
+      audioUrl:document.getElementById('audioUrl').value,
+      category:document.getElementById('category').value
+    };
+    
+    if(currentMarkerId){
+      const idx=markers.findIndex(m=>m.id===currentMarkerId);
+      if(idx>-1){
+        markers[idx]=data;
+        map.eachLayer(l=>{if(l._id===currentMarkerId)map.removeLayer(l)});
+        addMarkerToMap(data);
+      }
+    }else{
+      markers.push(data);
+      addMarkerToMap(data);
+    }
+    
+    saveMarkers();
+    closeModal();
+  });
+});
+</script>
+</body>
+</html>
