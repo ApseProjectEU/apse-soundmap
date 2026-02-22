@@ -208,29 +208,17 @@ const CATEGORIES = {
   soundscapes:     { label: 'Ecological Soundscapes',  color: '#6f42c1' }
 };
 
-/* ---------- SVG Marker Icons ---------- */
-function buildMarkerSvg(color, locked) {
-  const lockIcon = locked
-    ? '<text x="12.5" y="16" text-anchor="middle" font-size="9" font-weight="bold" fill="' + color + '" font-family="sans-serif">&#128274;</text>'
-    : '<circle cx="12.5" cy="12.5" r="5" fill="white"/>';
-  return 'data:image/svg+xml,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="25" height="41">' +
-    '<path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.4 12.5 28.5 12.5 28.5S25 20.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="' + color + '"/>' +
-    (locked
-      ? '<circle cx="12.5" cy="12.5" r="8" fill="white"/><text x="12.5" y="16.5" text-anchor="middle" font-size="12" fill="' + color + '">&#9875;</text>'
-      : '<circle cx="12.5" cy="12.5" r="5.5" fill="white" opacity="0.9"/>') +
-    '</svg>'
-  );
-}
-
-function getIcon(category, locked) {
+/* ---------- Circle Marker Style ---------- */
+function getCircleStyle(category, locked) {
   const color = CATEGORIES[category] ? CATEGORIES[category].color : '#666';
-  return L.icon({
-    iconUrl: buildMarkerSvg(color, locked),
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34]
-  });
+  return {
+    radius: 8,
+    fillColor: color,
+    color: locked ? '#fff' : 'rgba(0,0,0,0.25)',
+    weight: locked ? 3 : 2,
+    opacity: 1,
+    fillOpacity: 0.85
+  };
 }
 
 /* ---------- Audio URL Helpers ---------- */
@@ -255,7 +243,7 @@ function buildAudioPlayer(url) {
     return '<audio controls preload="none" style="width:100%;border-radius:8px"><source src="' + escapeHtml(url) + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
   }
   const embedUrl = convertToArchiveEmbed(url);
-  return '<iframe src="' + escapeHtml(embedUrl) + '" width="100%" height="60" frameborder="0" allowfullscreen style="border-radius:8px;background:#f5f5f5"></iframe>';
+  return '<iframe src="' + escapeHtml(embedUrl) + '" width="100%" height="50" frameborder="0" allowfullscreen style="border-radius:8px;background:#f5f5f5"></iframe>';
 }
 
 function escapeHtml(str) {
@@ -270,7 +258,7 @@ function buildPopup(data, locked) {
   let html = '<div class="popup-category-bar cat-' + data.category + '">' + cat.label + '</div>';
   html += '<div class="popup-inner">';
   if (locked) {
-    html += '<div class="popup-lock-badge">&#128274; APSE Project Recording</div>';
+    html += '<div class="popup-lock-badge">&#128274; APSE Project Official Marker</div>';
   }
   html += '<div class="popup-title">' + escapeHtml(data.title) + '</div>';
   html += '<div class="popup-desc">' + escapeHtml(data.description) + '</div>';
@@ -287,7 +275,8 @@ function buildPopup(data, locked) {
 
 /* ---------- Marker Management ---------- */
 function addMarkerToMap(data, locked) {
-  const marker = L.marker([data.lat, data.lng], { icon: getIcon(data.category, locked) }).addTo(map);
+  const style = getCircleStyle(data.category, locked);
+  const marker = L.circleMarker([data.lat, data.lng], style).addTo(map);
   marker.bindPopup(buildPopup(data, locked), { maxWidth: 380, className: 'custom-popup' });
   marker._markerId = data.id;
   mapLayers[data.id] = marker;
@@ -363,49 +352,27 @@ function toggleInstructions() {
    PRE-LOADED APSE PROJECT MARKERS (LOCKED)
    ========================================== */
 const PROJECT_MARKERS = [
-  // --- ITALY: Lama dei Peligni ---
-  { id:'apse-it-01', lat:42.042, lng:14.188, title:'Lama dei Peligni - Town Center', description:'Soundscape recording from the historic center of Lama dei Peligni, a small mountain village in the Majella National Park. Mixed anthropogenic and natural sounds.', audioUrl:'', category:'soundscapes' },
-  { id:'apse-it-02', lat:42.045, lng:14.182, title:'Lama dei Peligni - Valley Trail', description:'Early morning biophony along the trail descending into the valley below Lama dei Peligni. Rich bird chorus at dawn.', audioUrl:'', category:'biophony' },
-
-  // --- ITALY: Parco Nazionale della Majella (scattered ~5km radius around 42.05, 14.15) ---
-  { id:'apse-it-03', lat:42.058, lng:14.142, title:'Majella - Beech Forest Interior', description:'Deep interior of old-growth beech forest on the Majella massif. Wind through canopy, woodpecker drumming, and leaf rustle.', audioUrl:'', category:'biophony' },
-  { id:'apse-it-04', lat:42.042, lng:14.130, title:'Majella - Rocky Ridgeline', description:'Geophonic recording at high elevation. Persistent wind across exposed limestone ridge with occasional raptor calls.', audioUrl:'', category:'geophony' },
-  { id:'apse-it-05', lat:42.067, lng:14.160, title:'Majella - Mountain Stream', description:'Fast-flowing stream in a narrow gorge. Water turbulence, splash patterns, and frog choruses in the evening.', audioUrl:'', category:'geophony' },
-  { id:'apse-it-06', lat:42.035, lng:14.155, title:'Majella - Shepherd Path', description:'Traditional shepherd path with distant livestock bells, birdsong, and wind through grassland.', audioUrl:'', category:'anthrophony' },
-  { id:'apse-it-07', lat:42.072, lng:14.175, title:'Majella - Dawn Chorus Clearing', description:'Open meadow clearing at sunrise. Intense dawn chorus with blackbirds, warblers, and cuckoo.', audioUrl:'', category:'biophony' },
-  { id:'apse-it-08', lat:42.050, lng:14.118, title:'Majella - Cave Entrance', description:'Acoustic recording at a limestone cave entrance. Dripping water echoes and bat ultrasonic activity at dusk.', audioUrl:'', category:'geophony' },
-  { id:'apse-it-09', lat:42.040, lng:14.170, title:'Majella - Village Edge Forest', description:'Transition zone between village and forest. Domestic sounds fading into natural soundscape.', audioUrl:'', category:'soundscapes' },
-  { id:'apse-it-10', lat:42.063, lng:14.135, title:'Majella - Insect Meadow', description:'Summer meadow rich in insect stridulation. Crickets, grasshoppers, and cicadas create a dense biophonic texture.', audioUrl:'', category:'biophony' },
-  { id:'apse-it-11', lat:42.055, lng:14.185, title:'Majella - Road Crossing', description:'Noise pollution recording near a mountain road. Vehicle pass-bys disrupting the natural acoustic environment.', audioUrl:'', category:'sound_pollution' },
-  { id:'apse-it-12', lat:42.048, lng:14.145, title:'Majella - Night Soundscape', description:'Nocturnal recording capturing owls, foxes, and the distant sound of wind through the valley.', audioUrl:'', category:'soundscapes' },
-  { id:'apse-it-13', lat:42.038, lng:14.165, title:'Majella - Waterfall', description:'Cascading waterfall in a wooded ravine. Constant water roar with subtle bird calls in the background.', audioUrl:'', category:'geophony' },
-  { id:'apse-it-14', lat:42.070, lng:14.150, title:'Majella - Alpine Grassland', description:'High-altitude grassland above treeline. Wind-dominated soundscape with marmot whistles and skylark song.', audioUrl:'', category:'biophony' },
-  { id:'apse-it-15', lat:42.045, lng:14.198, title:'Majella - Farming Valley', description:'Agricultural valley with traditional farming activity. Tractor sounds, human voices, and birdsong interleaved.', audioUrl:'', category:'anthrophony' },
-
-  // --- SPAIN: Almazora ---
-  { id:'apse-es-01', lat:39.942, lng:-0.046, title:'Almazora - Riu Millars Riverbed', description:'Sound recording along the Riu Millars near Almazora. Water flow, reed warblers, and distant town activity.', audioUrl:'', category:'soundscapes' },
-  { id:'apse-es-02', lat:39.948, lng:-0.040, title:'Almazora - Orange Groves', description:'Citrus orchard soundscape. Bees pollinating, leaf rustle, and birdsong among the orange trees.', audioUrl:'', category:'biophony' },
-
-  // --- SPAIN: Valencia ---
-  { id:'apse-es-03', lat:39.470, lng:-0.377, title:'Valencia - City Park Soundscape', description:'Urban park in Valencia capturing the boundary between city noise and green space acoustics.', audioUrl:'', category:'soundscapes' },
-  { id:'apse-es-04', lat:39.475, lng:-0.370, title:'Valencia - Turia Gardens', description:'Soundscape in the Turia riverbed gardens. Children playing, cyclists passing, birds nesting in palms.', audioUrl:'', category:'anthrophony' },
-  { id:'apse-es-05', lat:39.465, lng:-0.385, title:'Valencia - Traffic Noise Study', description:'Traffic noise recording near a major intersection. Baseline measurement for urban noise pollution research.', audioUrl:'', category:'sound_pollution' },
-
-  // --- SPAIN: Sierra de Espadan ---
-  { id:'apse-es-06', lat:39.900, lng:-0.300, title:'Sierra de Espadan - Cork Oak Forest', description:'Mediterranean cork oak forest. Cicadas, hoopoe calls, and dry leaf crunch underfoot.', audioUrl:'', category:'biophony' },
-  { id:'apse-es-07', lat:39.910, lng:-0.290, title:'Sierra de Espadan - Mountain Spring', description:'Natural spring emerging from limestone. Gentle water sounds with amphibian calls in a shaded grove.', audioUrl:'', category:'geophony' },
-  { id:'apse-es-08', lat:39.895, lng:-0.310, title:'Sierra de Espadan - Hilltop Wind', description:'Wind recording from exposed hilltop in the natural park. Pure geophonic environment with no anthropogenic sound.', audioUrl:'', category:'geophony' },
-
-  // --- GREECE: Larissa ---
-  { id:'apse-gr-01', lat:39.638, lng:22.416, title:'Larissa - Pinios River', description:'Recording along the Pinios River near Larissa. Water flow, amphibians, and evening insect chorus.', audioUrl:'', category:'biophony' },
-  { id:'apse-gr-02', lat:39.645, lng:22.410, title:'Larissa - Agricultural Plain', description:'Thessaly agricultural plain soundscape. Wind across open fields, distant machinery, skylark song above.', audioUrl:'', category:'soundscapes' },
-  { id:'apse-gr-03', lat:39.632, lng:22.425, title:'Larissa - Urban Noise Baseline', description:'Urban noise measurement in central Larissa. Traffic, market activity, and the acoustic footprint of a Greek city.', audioUrl:'', category:'sound_pollution' },
-
-  // --- GREECE: Mount Olympus / Litochoro ---
-  { id:'apse-gr-04', lat:40.091, lng:22.422, title:'Litochoro - Enipeas Gorge', description:'Enipeas gorge below Mount Olympus. Rushing mountain stream, echo effects on canyon walls, and dipper bird calls.', audioUrl:'', category:'geophony' },
-  { id:'apse-gr-05', lat:40.098, lng:22.430, title:'Mount Olympus - Subalpine Forest', description:'Dense subalpine forest on Olympus slopes. Wind in black pine canopy, coal tit calls, and distant thunder.', audioUrl:'', category:'biophony' },
-  { id:'apse-gr-06', lat:40.085, lng:22.415, title:'Litochoro - Village Morning', description:'Morning soundscape in Litochoro village at the foot of Olympus. Church bells, rooster calls, and cafe chatter.', audioUrl:'', category:'anthrophony' },
-  { id:'apse-gr-07', lat:40.100, lng:22.440, title:'Mount Olympus - High Plateau', description:'Recording from the Plateau of the Muses. Pure wind, ravens calling, and the stark acoustic character of high mountain.', audioUrl:'', category:'soundscapes' }
+  // --- Lama dei Peligni, Majella National Park ---
+  { id:'apse-lama-01', lat:42.041, lng:14.187, title:'Barn Swallow', description:'Twittering flight calls of Barn Swallows hunting insects over village rooftops', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/rondine', category:'biophony' },
+  { id:'apse-lama-02', lat:42.046, lng:14.194, title:'Buzzards and Crows', description:'Interspecies acoustic interactions between buzzards and hooded crows in pine forest habitat', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/poiane-corvi-foresta-di-pini', category:'biophony' },
+  { id:'apse-lama-03', lat:42.038, lng:14.186, title:'Common Buzzard', description:'Mewing calls of Common Buzzard circling over mixed agricultural and forest landscape', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/poiana%20comune', category:'biophony' },
+  { id:'apse-lama-04', lat:42.039, lng:14.189, title:'Common Chaffinch', description:'Cascading territorial song of male Common Chaffinch in mixed deciduous woodland', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/fringuello%20comune', category:'biophony' },
+  { id:'apse-lama-05', lat:42.046, lng:14.182, title:'Common Kestrel', description:'High-pitched calls of Common Kestrel hovering over open grasslands at Chamois Oasis', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/gheppio%20comune', category:'biophony' },
+  { id:'apse-lama-06', lat:42.048, lng:14.185, title:'Common Raven', description:'Deep croaking vocalizations of Common Ravens soaring over Majella mountain ridges', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/corvo%20comune', category:'biophony' },
+  { id:'apse-lama-07', lat:42.044, lng:14.190, title:'Common Redstart', description:'Distinctive warbling calls of Common Redstart in mountain forest edge habitat', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/codirosso%20comune', category:'biophony' },
+  { id:'apse-lama-08', lat:42.043, lng:14.189, title:'Dalmatian Woodpecker', description:'Drumming and calls of rare Dalmatian Woodpecker in mature beech forest near the monastery', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/picchio%20dalmata', category:'biophony' },
+  { id:'apse-lama-09', lat:42.044, lng:14.193, title:'Eurasian Blackcap', description:'Rich melodious warbling of Eurasian Blackcap in dense shrubland undergrowth', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/capinera%20eurasiatica', category:'biophony' },
+  { id:'apse-lama-10', lat:42.045, lng:14.191, title:'Eurasian Treecreeper', description:'Thin high-pitched song of Eurasian Treecreeper foraging on ancient oak bark', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/rampichino%20eurasiatico', category:'biophony' },
+  { id:'apse-lama-11', lat:42.042, lng:14.188, title:'European Robin', description:'Melodious song of the European Robin recorded in Majella National Park woodland habitat during dawn chorus', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/pettirosso%20europeo', category:'biophony' },
+  { id:'apse-lama-12', lat:42.047, lng:14.187, title:'Goldcrest', description:'Europe\'s smallest bird, the Goldcrest, with its needle-thin calls in conifer canopy', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/regolo', category:'biophony' },
+  { id:'apse-lama-13', lat:42.052, lng:14.195, title:'Golden Eagle', description:'Majestic calls of Golden Eagle, apex predator of the Majella ecosystem, recorded at high altitude', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/aquila%20reale', category:'biophony' },
+  { id:'apse-lama-14', lat:42.040, lng:14.192, title:'Great Tit', description:'Characteristic two-syllable song of Great Tit in mixed woodland near Lama dei Peligni village', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/cinciallegra', category:'biophony' },
+  { id:'apse-lama-15', lat:42.041, lng:14.191, title:'Lama dei Peligni Hi-Fi Soundscape', description:'High-fidelity biophonic recording capturing the complete biodiversity acoustic signature of Lama dei Peligni', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/hifi-soundscape-lama', category:'biophony' },
+  { id:'apse-lama-16', lat:42.042, lng:14.190, title:'House Martin', description:'Social calls of House Martin colony nesting under building eaves in traditional architecture', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/balestruccio', category:'biophony' },
+  { id:'apse-lama-17', lat:42.050, lng:14.188, title:'Peregrine Falcon', description:'Sharp alarm calls of Peregrine Falcon defending cliff nesting territory in the Majella massif', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/falco%20pellegrino', category:'biophony' },
+  { id:'apse-lama-18', lat:42.049, lng:14.183, title:'Red Deer Roaring', description:'Powerful autumn rutting calls of red deer stag echoing through mountain valleys', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/cervo%20rosso%20che%20ruggisce', category:'biophony' },
+  { id:'apse-lama-19', lat:42.040, lng:14.184, title:'River Forest Binaural Recording', description:'Immersive binaural stereo capture of river ecosystem and surrounding forest acoustic environment', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/fiume-foresta-binaurale', category:'biophony' },
+  { id:'apse-lama-20', lat:42.043, lng:14.185, title:'Tree Frogs by River', description:'Nocturnal chorus of tree frogs creating complex acoustic patterns near mountain stream', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/raganelle', category:'biophony' }
 ];
 
 /* ==========================================
