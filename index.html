@@ -79,8 +79,8 @@ body{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;height:100vh;overf
 .popup-lock-badge{display:inline-flex;align-items:center;gap:4px;background:#f0f9f4;color:#145C3A;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;margin-bottom:10px;border:1px solid rgba(20,92,58,0.15)}
 .popup-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #eee}
 
-/* Marker cluster */
-.locked-marker-icon{position:relative}
+/* Circle marker overrides */
+.leaflet-interactive{cursor:pointer}
 
 /* Mobile responsive */
 @media(max-width:768px){
@@ -140,7 +140,7 @@ body{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;height:100vh;overf
   <div class="legend-item"><div class="legend-dot" style="background:#fd7e14"></div> Anthrophony</div>
   <div class="legend-item"><div class="legend-dot" style="background:#dc3545"></div> Noise Pollution</div>
   <div class="legend-item"><div class="legend-dot" style="background:#6f42c1"></div> Ecological Soundscapes</div>
-  <div class="legend-lock"><span>&#128274;</span> = Official APSE project marker</div>
+  <div class="legend-lock"><span>&#128274;</span> = APSE Project Official Marker</div>
 </div>
 
 <!-- Add/Edit Modal -->
@@ -208,29 +208,17 @@ const CATEGORIES = {
   soundscapes:     { label: 'Ecological Soundscapes',  color: '#6f42c1' }
 };
 
-/* ---------- SVG Marker Icons ---------- */
-function buildMarkerSvg(color, locked) {
-  const lockIcon = locked
-    ? '<text x="12.5" y="16" text-anchor="middle" font-size="9" font-weight="bold" fill="' + color + '" font-family="sans-serif">&#128274;</text>'
-    : '<circle cx="12.5" cy="12.5" r="5" fill="white"/>';
-  return 'data:image/svg+xml,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="25" height="41">' +
-    '<path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.4 12.5 28.5 12.5 28.5S25 20.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="' + color + '"/>' +
-    (locked
-      ? '<circle cx="12.5" cy="12.5" r="8" fill="white"/><text x="12.5" y="16.5" text-anchor="middle" font-size="12" fill="' + color + '">&#9875;</text>'
-      : '<circle cx="12.5" cy="12.5" r="5.5" fill="white" opacity="0.9"/>') +
-    '</svg>'
-  );
-}
-
-function getIcon(category, locked) {
+/* ---------- Circle Marker Style ---------- */
+function getCircleStyle(category, locked) {
   const color = CATEGORIES[category] ? CATEGORIES[category].color : '#666';
-  return L.icon({
-    iconUrl: buildMarkerSvg(color, locked),
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34]
-  });
+  return {
+    radius: 8,
+    fillColor: color,
+    color: '#fff',
+    weight: locked ? 3 : 2,
+    opacity: 1,
+    fillOpacity: locked ? 0.9 : 0.7
+  };
 }
 
 /* ---------- Audio URL Helpers ---------- */
@@ -270,7 +258,7 @@ function buildPopup(data, locked) {
   let html = '<div class="popup-category-bar cat-' + data.category + '">' + cat.label + '</div>';
   html += '<div class="popup-inner">';
   if (locked) {
-    html += '<div class="popup-lock-badge">&#128274; APSE Project Recording</div>';
+    html += '<div class="popup-lock-badge">&#128274; APSE Project Official Marker</div>';
   }
   html += '<div class="popup-title">' + escapeHtml(data.title) + '</div>';
   html += '<div class="popup-desc">' + escapeHtml(data.description) + '</div>';
@@ -287,8 +275,8 @@ function buildPopup(data, locked) {
 
 /* ---------- Marker Management ---------- */
 function addMarkerToMap(data, locked) {
-  const marker = L.marker([data.lat, data.lng], { icon: getIcon(data.category, locked) }).addTo(map);
-  marker.bindPopup(buildPopup(data, locked), { maxWidth: 380, className: 'custom-popup' });
+  const marker = L.circleMarker([data.lat, data.lng], getCircleStyle(data.category, locked)).addTo(map);
+  marker.bindPopup(buildPopup(data, locked), { maxWidth: 380, className: 'custom-popup', offset: [0, -4] });
   marker._markerId = data.id;
   mapLayers[data.id] = marker;
   return marker;
@@ -363,7 +351,29 @@ function toggleInstructions() {
    PRE-LOADED APSE PROJECT MARKERS (LOCKED)
    ========================================== */
 const PROJECT_MARKERS = [
-  // --- ITALY: Lama dei Peligni ---
+  // --- ITALY: Lama dei Peligni (Official APSE Recordings with Audio) ---
+  { id:'apse-ldp-01', lat:42.042, lng:14.188, title:'European Robin', description:'Melodious song of the European Robin recorded in Majella National Park woodland habitat during dawn chorus', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/european-robin.mp3', category:'biophony' },
+  { id:'apse-ldp-02', lat:42.044, lng:14.190, title:'Common Redstart', description:'Distinctive warbling calls of Common Redstart in mountain forest edge habitat', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/common-redstart.mp3', category:'biophony' },
+  { id:'apse-ldp-03', lat:42.048, lng:14.185, title:'Common Raven', description:'Deep croaking vocalizations of Common Ravens soaring over Majella mountain ridges', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/common-raven.mp3', category:'biophony' },
+  { id:'apse-ldp-04', lat:42.040, lng:14.192, title:'Great Tit', description:'Characteristic two-syllable song of Great Tit in mixed woodland near Lama dei Peligni village', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/great-tit.mp3', category:'biophony' },
+  { id:'apse-ldp-05', lat:42.046, lng:14.182, title:'Common Kestrel', description:'High-pitched calls of Common Kestrel hovering over open grasslands at Chamois Oasis', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/common-kestrel.mp3', category:'biophony' },
+  { id:'apse-ldp-06', lat:42.050, lng:14.188, title:'Peregrine Falcon', description:'Sharp alarm calls of Peregrine Falcon defending cliff nesting territory in the Majella massif', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/peregrine-falcon.mp3', category:'biophony' },
+  { id:'apse-ldp-07', lat:42.052, lng:14.195, title:'Golden Eagle', description:'Majestic calls of Golden Eagle, apex predator of the Majella ecosystem, recorded at high altitude', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/golden-eagle.mp3', category:'biophony' },
+  { id:'apse-ldp-08', lat:42.038, lng:14.186, title:'Common Buzzard', description:'Mewing calls of Common Buzzard circling over mixed agricultural and forest landscape', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/common-buzzard.mp3', category:'biophony' },
+  { id:'apse-ldp-09', lat:42.043, lng:14.189, title:'Dalmatian Woodpecker', description:'Drumming and calls of rare Dalmatian Woodpecker in mature beech forest near the monastery', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/dalmatian-woodpecker.mp3', category:'biophony' },
+  { id:'apse-ldp-10', lat:42.041, lng:14.187, title:'Barn Swallow', description:'Twittering flight calls of Barn Swallows hunting insects over village rooftops', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/barn-swallow.mp3', category:'biophony' },
+  { id:'apse-ldp-11', lat:42.042, lng:14.190, title:'House Martin', description:'Social calls of House Martin colony nesting under building eaves in traditional architecture', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/house-martin.mp3', category:'biophony' },
+  { id:'apse-ldp-12', lat:42.045, lng:14.191, title:'Eurasian Treecreeper', description:'Thin high-pitched song of Eurasian Treecreeper foraging on ancient oak bark', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/eurasian-treecreeper.mp3', category:'biophony' },
+  { id:'apse-ldp-13', lat:42.039, lng:14.189, title:'Common Chaffinch', description:'Cascading territorial song of male Common Chaffinch in mixed deciduous woodland', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/common-chaffinch.mp3', category:'biophony' },
+  { id:'apse-ldp-14', lat:42.047, lng:14.187, title:'Goldcrest', description:'Europe\'s smallest bird, the Goldcrest, with its needle-thin calls in conifer canopy', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/goldcrest.mp3', category:'biophony' },
+  { id:'apse-ldp-15', lat:42.044, lng:14.193, title:'Eurasian Blackcap', description:'Rich melodious warbling of Eurasian Blackcap in dense shrubland undergrowth', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/eurasian-blackcap.mp3', category:'biophony' },
+  { id:'apse-ldp-16', lat:42.049, lng:14.183, title:'Red Deer Roaring', description:'Powerful autumn rutting calls of red deer stag echoing through mountain valleys', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/red-deer-roaring.mp3', category:'biophony' },
+  { id:'apse-ldp-17', lat:42.043, lng:14.185, title:'Tree Frogs by River', description:'Nocturnal chorus of tree frogs creating complex acoustic patterns near mountain stream', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/tree-frogs-river.mp3', category:'biophony' },
+  { id:'apse-ldp-18', lat:42.046, lng:14.194, title:'Buzzards and Crows', description:'Interspecies acoustic interactions between buzzards and hooded crows in pine forest habitat', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/buzzards-crows-pine-forest.mp3', category:'biophony' },
+  { id:'apse-ldp-19', lat:42.041, lng:14.191, title:'Lama dei Peligni Hi-Fi Soundscape', description:'High-fidelity biophonic recording capturing the complete biodiversity acoustic signature of Lama dei Peligni', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/hifi-soundscape-lama.mp3', category:'biophony' },
+  { id:'apse-ldp-20', lat:42.040, lng:14.184, title:'River Forest Binaural Recording', description:'Immersive binaural stereo capture of river ecosystem and surrounding forest acoustic environment', audioUrl:'https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/river-forest-binaural.mp3', category:'biophony' },
+
+  // --- ITALY: Lama dei Peligni (General) ---
   { id:'apse-it-01', lat:42.042, lng:14.188, title:'Lama dei Peligni - Town Center', description:'Soundscape recording from the historic center of Lama dei Peligni, a small mountain village in the Majella National Park. Mixed anthropogenic and natural sounds.', audioUrl:'', category:'soundscapes' },
   { id:'apse-it-02', lat:42.045, lng:14.182, title:'Lama dei Peligni - Valley Trail', description:'Early morning biophony along the trail descending into the valley below Lama dei Peligni. Rich bird chorus at dawn.', audioUrl:'', category:'biophony' },
 
