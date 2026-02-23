@@ -13,7 +13,7 @@
   .controls { padding:1rem; background:#fff; }
 
   .badge-official {
-    display:inline-block; background:#000; color:#fff;
+    display:inline-block; background:#007bff; color:#fff;
     padding:4px 10px; border-radius:6px; font-size:0.75rem;
     margin-bottom:6px; font-weight:600;
   }
@@ -36,6 +36,7 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
+    background:#007bff;
   }
 </style>
 </head>
@@ -46,7 +47,7 @@
 
 <div class="controls">
   <h2>APSE Ecological Sound Map – Lama dei Peligni</h2>
-  <p>Official markers are color-coded by category. Users can add their own markers by clicking on the map.</p>
+  <p>All official markers represent biophonic recordings. Users can add their own markers by clicking on the map.</p>
 
   <h3>Upload your audio</h3>
 
@@ -66,13 +67,7 @@
   <h3>Legend</h3>
   <div class="legend">
     <div class="legend-item">
-      <span class="legend-color" style="background:#007bff;"></span> Biophony
-    </div>
-    <div class="legend-item">
-      <span class="legend-color" style="background:#28a745;"></span> Geophony
-    </div>
-    <div class="legend-item">
-      <span class="legend-color" style="background:#fd7e14;"></span> Anthrophony
+      <span class="legend-color"></span> Biophony (official & user markers)
     </div>
   </div>
 </div>
@@ -87,49 +82,45 @@ const map = L.map("map").setView([42.043, 14.188], 13);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
 // ---------------------------
-// CATEGORY COLORS (3 ONLY)
+// PIN ICON (Google Maps style)
 // ---------------------------
-const categoryColors = {
-  biophony: "#007bff",
-  geophony: "#28a745",
-  anthrophony: "#fd7e14"
-};
+const pinIcon = L.icon({
+  iconUrl: "https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png",
+  iconSize: [27, 43],
+  iconAnchor: [13, 42],
+  popupAnchor: [0, -40]
+});
 
 // ---------------------------
-// OFFICIAL MARKERS (COLORED BY CATEGORY)
+// OFFICIAL MARKERS (ALL BIOPHONY)
 // ---------------------------
 const RAW = "https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/";
 
 const officialMarkers = [
-  {"filename":"european-robin.mp3","title":"European Robin","description":"Melodious song","lat":42.042,"lng":14.188,"category":"biophony"},
-  {"filename":"common-redstart.mp3","title":"Common Redstart","description":"Warbling calls","lat":42.044,"lng":14.190,"category":"biophony"},
-  {"filename":"common-raven.mp3","title":"Common Raven","description":"Deep croaking","lat":42.048,"lng":14.185,"category":"biophony"},
-  {"filename":"great-tit.mp3","title":"Great Tit","description":"Two-syllable song","lat":42.040,"lng":14.192,"category":"biophony"},
-  {"filename":"common-kestrel.mp3","title":"Common Kestrel","description":"High-pitched calls","lat":42.046,"lng":14.182,"category":"biophony"},
-  {"filename":"peregrine-falcon.mp3","title":"Peregrine Falcon","description":"Sharp alarm calls","lat":42.050,"lng":14.188,"category":"biophony"},
-  {"filename":"golden-eagle.mp3","title":"Golden Eagle","description":"Majestic calls","lat":42.052,"lng":14.195,"category":"biophony"},
-  {"filename":"common-buzzard.mp3","title":"Common Buzzard","description":"Mewing calls","lat":42.038,"lng":14.186,"category":"biophony"},
-  {"filename":"dalmatian-woodpecker.mp3","title":"Dalmatian Woodpecker","description":"Drumming","lat":42.043,"lng":14.189,"category":"biophony"},
-  {"filename":"barn-swallow.mp3","title":"Barn Swallow","description":"Twittering","lat":42.041,"lng":14.187,"category":"biophony"},
-  {"filename":"house-martin.mp3","title":"House Martin","description":"Social calls","lat":42.042,"lng":14.190,"category":"biophony"},
-  {"filename":"eurasian-treecreeper.mp3","title":"Eurasian Treecreeper","description":"High-pitched song","lat":42.045,"lng":14.191,"category":"biophony"},
-  {"filename":"common-chaffinch.mp3","title":"Common Chaffinch","description":"Territorial song","lat":42.039,"lng":14.189,"category":"biophony"},
-  {"filename":"goldcrest.mp3","title":"Goldcrest","description":"Needle-thin calls","lat":42.047,"lng":14.187,"category":"biophony"},
-  {"filename":"eurasian-blackcap.mp3","title":"Eurasian Blackcap","description":"Melodious warbling","lat":42.044,"lng":14.193,"category":"biophony"},
-  {"filename":"red-deer-roaring.mp3","title":"Red Deer Roaring","description":"Rutting calls","lat":42.049,"lng":14.183,"category":"geophony"},
-  {"filename":"tree-frogs-river.mp3","title":"Tree Frogs","description":"Nocturnal chorus","lat":42.043,"lng":14.185,"category":"geophony"},
-  {"filename":"buzzards-crows-pine-forest.mp3","title":"Buzzards & Crows","description":"Interspecies calls","lat":42.046,"lng":14.194,"category":"anthrophony"},
-  {"filename":"hifi-soundscape-lama.mp3","title":"Hi-Fi Soundscape","description":"Full ecosystem","lat":42.041,"lng":14.191,"category":"geophony"},
-  {"filename":"river-forest-binaural.mp3","title":"River Forest Binaural","description":"Immersive river","lat":42.040,"lng":14.184,"category":"geophony"}
+  {"filename":"european-robin.mp3","title":"European Robin","description":"Melodious song","lat":42.042,"lng":14.188},
+  {"filename":"common-redstart.mp3","title":"Common Redstart","description":"Warbling calls","lat":42.044,"lng":14.190},
+  {"filename":"common-raven.mp3","title":"Common Raven","description":"Deep croaking","lat":42.048,"lng":14.185},
+  {"filename":"great-tit.mp3","title":"Great Tit","description":"Two-syllable song","lat":42.040,"lng":14.192},
+  {"filename":"common-kestrel.mp3","title":"Common Kestrel","description":"High-pitched calls","lat":42.046,"lng":14.182},
+  {"filename":"peregrine-falcon.mp3","title":"Peregrine Falcon","description":"Sharp alarm calls","lat":42.050,"lng":14.188},
+  {"filename":"golden-eagle.mp3","title":"Golden Eagle","description":"Majestic calls","lat":42.052,"lng":14.195},
+  {"filename":"common-buzzard.mp3","title":"Common Buzzard","description":"Mewing calls","lat":42.038,"lng":14.186},
+  {"filename":"dalmatian-woodpecker.mp3","title":"Dalmatian Woodpecker","description":"Drumming","lat":42.043,"lng":14.189},
+  {"filename":"barn-swallow.mp3","title":"Barn Swallow","description":"Twittering","lat":42.041,"lng":14.187},
+  {"filename":"house-martin.mp3","title":"House Martin","description":"Social calls","lat":42.042,"lng":14.190},
+  {"filename":"eurasian-treecreeper.mp3","title":"Eurasian Treecreeper","description":"High-pitched song","lat":42.045,"lng":14.191},
+  {"filename":"common-chaffinch.mp3","title":"Common Chaffinch","description":"Territorial song","lat":42.039,"lng":14.189},
+  {"filename":"goldcrest.mp3","title":"Goldcrest","description":"Needle-thin calls","lat":42.047,"lng":14.187},
+  {"filename":"eurasian-blackcap.mp3","title":"Eurasian Blackcap","description":"Melodious warbling","lat":42.044,"lng":14.193},
+  {"filename":"red-deer-roaring.mp3","title":"Red Deer Roaring","description":"Rutting calls","lat":42.049,"lng":14.183},
+  {"filename":"tree-frogs-river.mp3","title":"Tree Frogs","description":"Nocturnal chorus","lat":42.043,"lng":14.185},
+  {"filename":"buzzards-crows-pine-forest.mp3","title":"Buzzards & Crows","description":"Interspecies calls","lat":42.046,"lng":14.194},
+  {"filename":"hifi-soundscape-lama.mp3","title":"Hi-Fi Soundscape","description":"Full ecosystem","lat":42.041,"lng":14.191},
+  {"filename":"river-forest-binaural.mp3","title":"River Forest Binaural","description":"Immersive river","lat":42.040,"lng":14.184}
 ];
 
 officialMarkers.forEach(m => {
-  const marker = L.circleMarker([m.lat, m.lng], {
-    radius: 9,
-    color: categoryColors[m.category],
-    fillColor: categoryColors[m.category],
-    fillOpacity: 1
-  });
+  const marker = L.marker([m.lat, m.lng], { icon: pinIcon });
 
   const audioUrl = RAW + m.filename;
 
@@ -142,11 +133,16 @@ officialMarkers.forEach(m => {
     </audio>
   `);
 
+  // 🔥 ZOOM TO MARKER
+  marker.on("click", () => {
+    map.setView([m.lat, m.lng], 16, { animate: true });
+  });
+
   marker.addTo(map);
 });
 
 // ---------------------------
-// USER MARKERS (DEFAULT BIOPHONY COLOR)
+// USER MARKERS (ALSO PIN ICON)
 // ---------------------------
 let selectedLat = null;
 let selectedLng = null;
@@ -168,12 +164,7 @@ document.getElementById("addMarker").onclick = () => {
   const description = document.getElementById("description").value;
   const url = document.getElementById("archiveUrl").value;
 
-  const marker = L.circleMarker([selectedLat, selectedLng], {
-    radius: 8,
-    color: categoryColors.biophony,
-    fillColor: categoryColors.biophony,
-    fillOpacity: 0.9
-  });
+  const marker = L.marker([selectedLat, selectedLng], { icon: pinIcon });
 
   marker.bindPopup(`
     <b>${title}</b><br>
@@ -181,6 +172,11 @@ document.getElementById("addMarker").onclick = () => {
     <iframe src="https://archive.org/embed/${url.split('/').pop()}"
             width="100%" height="120"></iframe>
   `);
+
+  // 🔥 ZOOM TO MARKER
+  marker.on("click", () => {
+    map.setView([selectedLat, selectedLng], 16, { animate: true });
+  });
 
   marker.addTo(map);
 };
