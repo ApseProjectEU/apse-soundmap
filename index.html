@@ -1,462 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APSE Sound Map - Ecological Soundscapes</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;height:100vh;overflow:hidden;background:#f8fdfb}
-#map{width:100%;height:100vh}
+  <meta charset="UTF-8" />
+  <title>APSE Ecological Sound Map – Lama dei Peligni</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-/* Legend Panel */
-.legend-panel{position:absolute;bottom:30px;right:10px;background:rgba(255,255,255,0.97);padding:16px 20px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.12);z-index:1000;font-size:13px;color:#333;border:2px solid rgba(20,92,58,0.08);max-width:220px}
-.legend-panel h4{font-size:14px;color:#145C3A;margin-bottom:10px;font-weight:700}
-.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
-.legend-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid rgba(0,0,0,0.1)}
-.legend-lock{font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #eee;display:flex;align-items:center;gap:4px}
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
 
-/* Instruction Panel */
-.instruction-panel{position:absolute;top:10px;left:55px;background:rgba(255,255,255,0.98);padding:0;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.14);z-index:1000;font-size:13px;color:#333;border:2px solid rgba(20,92,58,0.08);max-width:360px;transition:all 0.3s ease;overflow:hidden}
-.instruction-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;background:linear-gradient(135deg,#145C3A 0%,#1a7a4e 100%);color:white;user-select:none}
-.instruction-header h3{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
-.instruction-toggle{background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:transform 0.3s}
-.instruction-toggle.collapsed{transform:rotate(180deg)}
-.instruction-body{padding:18px 20px;max-height:500px;overflow-y:auto;transition:max-height 0.4s ease,padding 0.3s ease}
-.instruction-body.collapsed{max-height:0;padding:0 20px;overflow:hidden}
-.instruction-body h4{color:#145C3A;font-size:14px;margin:12px 0 8px;font-weight:700}
-.instruction-body h4:first-child{margin-top:0}
-.instruction-body ol,.instruction-body ul{padding-left:20px;margin-bottom:10px}
-.instruction-body li{margin-bottom:5px;line-height:1.5;font-size:12.5px;color:#444}
-.instruction-body code{background:#e8f5e9;padding:2px 6px;border-radius:4px;font-size:11px;color:#145C3A;word-break:break-all}
-.instruction-body .tip-box{background:linear-gradient(135deg,#f0f9f4,#e8f5e9);padding:10px 12px;border-radius:8px;border-left:3px solid #145C3A;margin-top:10px;font-size:11.5px;line-height:1.5;color:#2d5a3f}
-
-/* Modal */
-.modal-overlay{display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;backdrop-filter:blur(3px);animation:fadeIn 0.2s ease}
-.modal-overlay.active{display:flex}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-content{background:white;padding:0;border-radius:18px;width:92%;max-width:520px;box-shadow:0 25px 80px rgba(0,0,0,0.3);animation:slideUp 0.3s ease;overflow:hidden;max-height:90vh;overflow-y:auto}
-.modal-top{background:linear-gradient(135deg,#145C3A 0%,#1a7a4e 100%);padding:24px 30px;color:white}
-.modal-top h2{font-size:20px;font-weight:700;margin:0}
-.modal-top p{font-size:13px;opacity:0.85;margin-top:4px}
-.modal-form{padding:24px 30px 30px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;margin-bottom:5px;font-weight:600;color:#333;font-size:13px}
-.form-group input,.form-group textarea,.form-group select{width:100%;padding:11px 14px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit;transition:border 0.3s,box-shadow 0.3s;background:#fafafa}
-.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#145C3A;outline:none;box-shadow:0 0 0 3px rgba(20,92,58,0.1);background:white}
-.form-group textarea{resize:vertical;min-height:80px}
-.form-hint{font-size:11px;color:#666;margin-top:6px;line-height:1.5;background:linear-gradient(135deg,#f0f9f4,#e8f5e9);padding:10px 12px;border-radius:8px;border-left:3px solid #145C3A}
-.form-hint strong{color:#145C3A}
-.form-actions{display:flex;gap:10px;margin-top:22px}
-.btn{padding:12px 24px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.25s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:linear-gradient(135deg,#145C3A,#1a7a4e);color:white;flex:1;justify-content:center}
-.btn-primary:hover{background:linear-gradient(135deg,#0d3d26,#145C3A);transform:translateY(-1px);box-shadow:0 4px 12px rgba(20,92,58,0.3)}
-.btn-secondary{background:#f0f0f0;color:#555}
-.btn-secondary:hover{background:#e0e0e0}
-.btn-danger{background:#dc3545;color:white;padding:8px 14px;font-size:12px;border-radius:8px}
-.btn-danger:hover{background:#c82333}
-.btn-edit{background:#ffc107;color:#333;padding:8px 14px;font-size:12px;border-radius:8px}
-.btn-edit:hover{background:#e0a800}
-
-/* Popup Styles */
-.leaflet-popup-content-wrapper{border-radius:16px!important;padding:0!important;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.18)!important}
-.leaflet-popup-content{margin:0!important;min-width:300px;max-width:360px}
-.leaflet-popup-tip{box-shadow:0 3px 10px rgba(0,0,0,0.1)!important}
-.popup-inner{padding:20px}
-.popup-category-bar{padding:8px 20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:white}
-.popup-category-bar.cat-biophony{background:linear-gradient(135deg,#007bff,#0056b3)}
-.popup-category-bar.cat-geophony{background:linear-gradient(135deg,#28a745,#1e7e34)}
-.popup-category-bar.cat-anthrophony{background:linear-gradient(135deg,#fd7e14,#e06b0a)}
-.popup-category-bar.cat-sound_pollution{background:linear-gradient(135deg,#dc3545,#bd2130)}
-.popup-category-bar.cat-soundscapes{background:linear-gradient(135deg,#6f42c1,#5a32a3)}
-.popup-title{font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:8px;line-height:1.3}
-.popup-desc{font-size:13px;color:#555;margin-bottom:14px;line-height:1.6}
-.popup-audio{margin:12px 0}
-.popup-audio iframe{width:100%;border:none;border-radius:8px;background:#f5f5f5}
-.popup-audio audio{width:100%;border-radius:8px}
-.popup-lock-badge{display:inline-flex;align-items:center;gap:4px;background:#f0f9f4;color:#145C3A;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;margin-bottom:10px;border:1px solid rgba(20,92,58,0.15)}
-.popup-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #eee}
-
-/* Marker cluster */
-.locked-marker-icon{position:relative}
-
-/* Mobile responsive */
-@media(max-width:768px){
-  .instruction-panel{left:10px;right:10px;max-width:none;top:10px}
-  .legend-panel{bottom:10px;right:10px;left:10px;max-width:none}
-  .modal-content{width:96%;border-radius:14px}
-  .leaflet-popup-content{min-width:260px}
-  .popup-inner{padding:16px}
-}
-@media(max-width:480px){
-  .instruction-panel{font-size:12px}
-  .modal-top h2{font-size:18px}
-  .modal-form{padding:18px 20px 24px}
-}
-</style>
-</head>
-<body>
-
-<div id="map"></div>
-
-<!-- Instruction Panel -->
-<div class="instruction-panel" id="instructionPanel">
-  <div class="instruction-header" onclick="toggleInstructions()">
-    <h3><span>&#127911;</span> APSE Sound Map</h3>
-    <button class="instruction-toggle" id="toggleBtn" aria-label="Toggle instructions">&#9650;</button>
-  </div>
-  <div class="instruction-body" id="instructionBody">
-    <h4>How to add sounds:</h4>
-    <ol>
-      <li>Click anywhere on the map</li>
-      <li>Fill in the sound details</li>
-      <li>Paste your Archive.org audio link (any format works)</li>
-      <li>Select sound category</li>
-      <li>Click Save &mdash; your marker appears!</li>
-    </ol>
-    <h4>Archive.org links:</h4>
-    <ul>
-      <li><code>https://archive.org/details/collection/file.mp3</code></li>
-      <li><code>https://archive.org/download/collection/file.mp3</code></li>
-    </ul>
-    <div class="tip-box">
-      <strong>Both formats work automatically!</strong> The map converts any Archive.org link into a working embedded player.
-    </div>
-    <h4>Project markers:</h4>
-    <ul>
-      <li>Locked markers (<span style="color:#145C3A">&#128274;</span>) are official APSE project recordings and cannot be modified.</li>
-      <li>Your personal markers can be edited or deleted anytime.</li>
-    </ul>
-  </div>
-</div>
-
-<!-- Legend Panel -->
-<div class="legend-panel">
-  <h4>Sound Categories</h4>
-  <div class="legend-item"><div class="legend-dot" style="background:#007bff"></div> Biophony</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#28a745"></div> Geophony</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#fd7e14"></div> Anthrophony</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#dc3545"></div> Noise Pollution</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#6f42c1"></div> Ecological Soundscapes</div>
-  <div class="legend-lock"><span>&#128274;</span> = Official APSE project marker</div>
-</div>
-
-<!-- Add/Edit Modal -->
-<div class="modal-overlay" id="markerModal">
-  <div class="modal-content">
-    <div class="modal-top">
-      <h2 id="modalTitle">Add Sound Marker</h2>
-      <p id="modalSubtitle">Click location recorded. Fill in the details below.</p>
-    </div>
-    <form id="markerForm" class="modal-form">
-      <div class="form-group">
-        <label for="inputTitle">Title *</label>
-        <input type="text" id="inputTitle" required placeholder="e.g., Dawn Chorus in Majella Forest">
-      </div>
-      <div class="form-group">
-        <label for="inputDescription">Description *</label>
-        <textarea id="inputDescription" required placeholder="Describe the soundscape, location, time of day, species heard..."></textarea>
-      </div>
-      <div class="form-group">
-        <label for="inputAudioUrl">Archive.org Audio URL *</label>
-        <input type="url" id="inputAudioUrl" required placeholder="https://archive.org/details/...">
-        <div class="form-hint">
-          <strong>Paste any Archive.org link:</strong><br>
-          &#8226; https://archive.org/details/collection/file.mp3<br>
-          &#8226; https://archive.org/download/collection/file.mp3<br>
-          The map auto-converts to a working embed player.
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="inputCategory">Category *</label>
-        <select id="inputCategory" required>
-          <option value="">-- Select Sound Type --</option>
-          <option value="biophony">Biophony &mdash; Biological sounds (animals, birds, insects)</option>
-          <option value="geophony">Geophony &mdash; Natural sounds (wind, water, rain)</option>
-          <option value="anthrophony">Anthrophony &mdash; Human sounds (voices, music, machines)</option>
-          <option value="sound_pollution">Noise Pollution &mdash; Unwanted noise</option>
-          <option value="soundscapes">Ecological Soundscapes &mdash; Complex sound environments</option>
-        </select>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save Marker</button>
-        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-/* ========================================================
-   APSE Sound Map - Ecological Soundscapes Interactive Map
-   ======================================================== */
-
-/* ---------- State ---------- */
-let map, currentMarkerId = null, currentLatLng = null;
-let userMarkers = []; // User-created markers stored in localStorage
-let mapLayers = {};   // Reference to Leaflet layers by id
-
-/* ---------- Category Config ---------- */
-const CATEGORIES = {
-  biophony:        { label: 'Biophony',               color: '#007bff' },
-  geophony:        { label: 'Geophony',               color: '#28a745' },
-  anthrophony:     { label: 'Anthrophony',             color: '#fd7e14' },
-  sound_pollution: { label: 'Noise Pollution',         color: '#dc3545' },
-  soundscapes:     { label: 'Ecological Soundscapes',  color: '#6f42c1' }
-};
-
-/* ---------- Circle Marker Style ---------- */
-function getCircleStyle(category, locked) {
-  const color = CATEGORIES[category] ? CATEGORIES[category].color : '#666';
-  return {
-    radius: 8,
-    fillColor: color,
-    color: locked ? '#fff' : 'rgba(0,0,0,0.25)',
-    weight: locked ? 3 : 2,
-    opacity: 1,
-    fillOpacity: 0.85
-  };
-}
-
-/* ---------- Audio URL Helpers ---------- */
-function convertToArchiveEmbed(url) {
-  if (!url) return '';
-  let embedUrl = url.trim();
-  if (embedUrl.includes('archive.org/details/')) {
-    embedUrl = embedUrl.replace('/details/', '/embed/');
-  } else if (embedUrl.includes('archive.org/download/')) {
-    embedUrl = embedUrl.replace('/download/', '/embed/');
-  }
-  return embedUrl.split('?')[0];
-}
-
-function isGitHubAudio(url) {
-  return url && url.includes('raw.githubusercontent.com');
-}
-
-function buildAudioPlayer(url) {
-  if (!url) return '<p style="color:#999;font-size:12px;font-style:italic">Audio file will be available soon.</p>';
-  if (isGitHubAudio(url)) {
-    return '<audio controls preload="none" style="width:100%;border-radius:8px"><source src="' + escapeHtml(url) + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
-  }
-  const embedUrl = convertToArchiveEmbed(url);
-  return '<iframe src="' + escapeHtml(embedUrl) + '" width="100%" height="50" frameborder="0" allowfullscreen style="border-radius:8px;background:#f5f5f5"></iframe>';
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-/* ---------- Popup Builder ---------- */
-function buildPopup(data, locked) {
-  const cat = CATEGORIES[data.category] || { label: 'Unknown', color: '#666' };
-  let html = '<div class="popup-category-bar cat-' + data.category + '">' + cat.label + '</div>';
-  html += '<div class="popup-inner">';
-  if (locked) {
-    html += '<div class="popup-lock-badge">&#128274; APSE Project Official Marker</div>';
-  }
-  html += '<div class="popup-title">' + escapeHtml(data.title) + '</div>';
-  html += '<div class="popup-desc">' + escapeHtml(data.description) + '</div>';
-  html += '<div class="popup-audio">' + buildAudioPlayer(data.audioUrl) + '</div>';
-  if (!locked) {
-    html += '<div class="popup-actions">';
-    html += '<button class="btn btn-edit" onclick="editMarker(\'' + data.id + '\')">Edit</button>';
-    html += '<button class="btn btn-danger" onclick="deleteMarker(\'' + data.id + '\')">Delete</button>';
-    html += '</div>';
-  }
-  html += '</div>';
-  return html;
-}
-
-/* ---------- Marker Management ---------- */
-function addMarkerToMap(data, locked) {
-  const style = getCircleStyle(data.category, locked);
-  const marker = L.circleMarker([data.lat, data.lng], style).addTo(map);
-  marker.bindPopup(buildPopup(data, locked), { maxWidth: 380, className: 'custom-popup' });
-  marker._markerId = data.id;
-  mapLayers[data.id] = marker;
-  return marker;
-}
-
-function removeMarkerFromMap(id) {
-  if (mapLayers[id]) {
-    map.removeLayer(mapLayers[id]);
-    delete mapLayers[id];
-  }
-}
-
-/* ---------- localStorage ---------- */
-function saveUserMarkers() {
-  localStorage.setItem('apse_user_markers', JSON.stringify(userMarkers));
-}
-
-function loadUserMarkers() {
-  try {
-    return JSON.parse(localStorage.getItem('apse_user_markers') || '[]');
-  } catch (e) {
-    return [];
-  }
-}
-
-/* ---------- User Actions ---------- */
-function editMarker(id) {
-  const data = userMarkers.find(function(m) { return m.id === id; });
-  if (!data) return;
-  map.closePopup();
-  currentMarkerId = id;
-  currentLatLng = { lat: data.lat, lng: data.lng };
-  document.getElementById('modalTitle').textContent = 'Edit Sound Marker';
-  document.getElementById('modalSubtitle').textContent = 'Update the details for this marker.';
-  document.getElementById('inputTitle').value = data.title;
-  document.getElementById('inputDescription').value = data.description;
-  document.getElementById('inputAudioUrl').value = data.audioUrl;
-  document.getElementById('inputCategory').value = data.category;
-  document.getElementById('markerModal').classList.add('active');
-}
-
-function deleteMarker(id) {
-  if (!confirm('Delete this sound marker? This cannot be undone.')) return;
-  userMarkers = userMarkers.filter(function(m) { return m.id !== id; });
-  removeMarkerFromMap(id);
-  saveUserMarkers();
-  map.closePopup();
-}
-
-function openModal(latlng) {
-  currentLatLng = latlng;
-  currentMarkerId = null;
-  document.getElementById('modalTitle').textContent = 'Add Sound Marker';
-  document.getElementById('modalSubtitle').textContent = 'Location: ' + latlng.lat.toFixed(4) + ', ' + latlng.lng.toFixed(4);
-  document.getElementById('markerForm').reset();
-  document.getElementById('markerModal').classList.add('active');
-}
-
-function closeModal() {
-  document.getElementById('markerModal').classList.remove('active');
-}
-
-/* ---------- Instruction Panel Toggle ---------- */
-function toggleInstructions() {
-  var body = document.getElementById('instructionBody');
-  var btn = document.getElementById('toggleBtn');
-  body.classList.toggle('collapsed');
-  btn.classList.toggle('collapsed');
-}
-
-/* ==========================================
-   PRE-LOADED APSE PROJECT MARKERS (LOCKED)
-   ========================================== */
-const PROJECT_MARKERS = [
-  // --- Lama dei Peligni, Majella National Park ---
-  { id:'apse-lama-01', lat:42.041, lng:14.187, title:'Barn Swallow', description:'Twittering flight calls of Barn Swallows hunting insects over village rooftops', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/rondine', category:'biophony' },
-  { id:'apse-lama-02', lat:42.046, lng:14.194, title:'Buzzards and Crows', description:'Interspecies acoustic interactions between buzzards and hooded crows in pine forest habitat', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/poiane-corvi-foresta-di-pini', category:'biophony' },
-  { id:'apse-lama-03', lat:42.038, lng:14.186, title:'Common Buzzard', description:'Mewing calls of Common Buzzard circling over mixed agricultural and forest landscape', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/poiana%20comune', category:'biophony' },
-  { id:'apse-lama-04', lat:42.039, lng:14.189, title:'Common Chaffinch', description:'Cascading territorial song of male Common Chaffinch in mixed deciduous woodland', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/fringuello%20comune', category:'biophony' },
-  { id:'apse-lama-05', lat:42.046, lng:14.182, title:'Common Kestrel', description:'High-pitched calls of Common Kestrel hovering over open grasslands at Chamois Oasis', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/gheppio%20comune', category:'biophony' },
-  { id:'apse-lama-06', lat:42.048, lng:14.185, title:'Common Raven', description:'Deep croaking vocalizations of Common Ravens soaring over Majella mountain ridges', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/corvo%20comune', category:'biophony' },
-  { id:'apse-lama-07', lat:42.044, lng:14.190, title:'Common Redstart', description:'Distinctive warbling calls of Common Redstart in mountain forest edge habitat', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/codirosso%20comune', category:'biophony' },
-  { id:'apse-lama-08', lat:42.043, lng:14.189, title:'Dalmatian Woodpecker', description:'Drumming and calls of rare Dalmatian Woodpecker in mature beech forest near the monastery', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/picchio%20dalmata', category:'biophony' },
-  { id:'apse-lama-09', lat:42.044, lng:14.193, title:'Eurasian Blackcap', description:'Rich melodious warbling of Eurasian Blackcap in dense shrubland undergrowth', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/capinera%20eurasiatica', category:'biophony' },
-  { id:'apse-lama-10', lat:42.045, lng:14.191, title:'Eurasian Treecreeper', description:'Thin high-pitched song of Eurasian Treecreeper foraging on ancient oak bark', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/rampichino%20eurasiatico', category:'biophony' },
-  { id:'apse-lama-11', lat:42.042, lng:14.188, title:'European Robin', description:'Melodious song of the European Robin recorded in Majella National Park woodland habitat during dawn chorus', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/pettirosso%20europeo', category:'biophony' },
-  { id:'apse-lama-12', lat:42.047, lng:14.187, title:'Goldcrest', description:'Europe\'s smallest bird, the Goldcrest, with its needle-thin calls in conifer canopy', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/regolo', category:'biophony' },
-  { id:'apse-lama-13', lat:42.052, lng:14.195, title:'Golden Eagle', description:'Majestic calls of Golden Eagle, apex predator of the Majella ecosystem, recorded at high altitude', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/aquila%20reale', category:'biophony' },
-  { id:'apse-lama-14', lat:42.040, lng:14.192, title:'Great Tit', description:'Characteristic two-syllable song of Great Tit in mixed woodland near Lama dei Peligni village', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/cinciallegra', category:'biophony' },
-  { id:'apse-lama-15', lat:42.041, lng:14.191, title:'Lama dei Peligni Hi-Fi Soundscape', description:'High-fidelity biophonic recording capturing the complete biodiversity acoustic signature of Lama dei Peligni', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/hifi-soundscape-lama', category:'biophony' },
-  { id:'apse-lama-16', lat:42.042, lng:14.190, title:'House Martin', description:'Social calls of House Martin colony nesting under building eaves in traditional architecture', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/balestruccio', category:'biophony' },
-  { id:'apse-lama-17', lat:42.050, lng:14.188, title:'Peregrine Falcon', description:'Sharp alarm calls of Peregrine Falcon defending cliff nesting territory in the Majella massif', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/falco%20pellegrino', category:'biophony' },
-  { id:'apse-lama-18', lat:42.049, lng:14.183, title:'Red Deer Roaring', description:'Powerful autumn rutting calls of red deer stag echoing through mountain valleys', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/cervo%20rosso%20che%20ruggisce', category:'biophony' },
-  { id:'apse-lama-19', lat:42.040, lng:14.184, title:'River Forest Binaural Recording', description:'Immersive binaural stereo capture of river ecosystem and surrounding forest acoustic environment', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/fiume-foresta-binaurale', category:'biophony' },
-  { id:'apse-lama-20', lat:42.043, lng:14.185, title:'Tree Frogs by River', description:'Nocturnal chorus of tree frogs creating complex acoustic patterns near mountain stream', audioUrl:'https://archive.org/embed/hifi-soundscape-lama/raganelle', category:'biophony' }
-];
-
-/* ==========================================
-   MAP INITIALIZATION
-   ========================================== */
-window.addEventListener('DOMContentLoaded', function() {
-
-  // Europe bounds restriction
-  var europeBounds = L.latLngBounds(
-    L.latLng(34, -12),  // Southwest
-    L.latLng(72, 45)    // Northeast
-  );
-
-  map = L.map('map', {
-    center: [42.042, 14.188],
-    zoom: 6,
-    minZoom: 5,
-    maxZoom: 18,
-    maxBounds: europeBounds,
-    maxBoundsViscosity: 1.0
-  });
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | APSE Ecological Soundscapes Project',
-    maxZoom: 18
-  }).addTo(map);
-
-  // Load and render locked project markers
-  PROJECT_MARKERS.forEach(function(m) {
-    addMarkerToMap(m, true);
-  });
-
-  // Load and render user markers from localStorage
-  userMarkers = loadUserMarkers();
-  userMarkers.forEach(function(m) {
-    addMarkerToMap(m, false);
-  });
-
-  // Map click -> open add modal
-  map.on('click', function(e) {
-    openModal(e.latlng);
-  });
-
-  // Form submission
-  document.getElementById('markerForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    var data = {
-      id: currentMarkerId || ('user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5)),
-      lat: currentLatLng.lat,
-      lng: currentLatLng.lng,
-      title: document.getElementById('inputTitle').value.trim(),
-      description: document.getElementById('inputDescription').value.trim(),
-      audioUrl: document.getElementById('inputAudioUrl').value.trim(),
-      category: document.getElementById('inputCategory').value
-    };
-
-    if (currentMarkerId) {
-      // Editing existing marker
-      var idx = userMarkers.findIndex(function(m) { return m.id === currentMarkerId; });
-      if (idx > -1) {
-        userMarkers[idx] = data;
-        removeMarkerFromMap(currentMarkerId);
-        addMarkerToMap(data, false);
-      }
-    } else {
-      // New marker
-      userMarkers.push(data);
-      addMarkerToMap(data, false);
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
     }
 
-    saveUserMarkers();
-    closeModal();
-  });
+    #map {
+      width: 100%;
+      height: 70vh;
+    }
 
-  // Close modal on overlay click
-  document.getElementById('markerModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
+    .controls {
+      padding: 1rem 1.5rem 1.5rem;
+      background: #ffffff;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+    }
 
-  // Close modal on Escape key
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeModal();
-  });
-});
-</script>
+    .controls h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .controls p {
+      margin: 0 0 0.75rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem 1rem;
+      margin-top: 0.75rem;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.85rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 0.4rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .btn-primary {
+      padding: 0.5rem 0.9rem;
+      border-radius: 4px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .coords-display {
+      font-size: 0.8rem;
+      color: #555;
+    }
+
+    .legend {
+      margin-top: 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .badge-official {
+      display: inline-block;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      background: #007bff;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.25rem;
+    }
+
+    .popup-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .popup-category {
+      font-size: 0.75rem;
+      color: #555;
+      margin-bottom: 0.25rem;
+    }
+
+    .popup-description {
+      font-size: 0.8rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .popup-footer {
+      font-size: 0.7rem;
+      color: #777;
+      margin-top: 0.25rem;
+    }
+
+    .delete-btn {
+      margin-top: 0.4rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      border: none;
+      background: #dc3545;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      #map {
+        height: 60vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="controls">
+    <h1>APSE Ecological Sound Map – Lama dei Peligni</h1>
+    <p>
+      Click on the map to select a location, then add your own marker using an Archive.org audio link.
+      Official APSE markers are pre-loaded, locked, and shown as blue circles.
+    </p>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input id="title" type="text" placeholder="Sound title" />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" placeholder="Short description of the sound"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category">
+          <option value="biophony">Biophony</option>
+          <option value="geophony">Geophony</option>
+          <option value="anthrophony">Anthrophony</option>
+          <option value="noise-pollution">Noise Pollution</option>
+          <option value="ecological-soundscapes">Ecological Soundscapes</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="archiveUrl">Archive.org URL</label>
+        <input
+          id="archiveUrl"
+          type="url"
+          placeholder="https://archive.org/details/your-audio-id"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Selected coordinates</label>
+        <div class="coords-display" id="coordsDisplay">
+          Click on the map to choose a location.
+        </div>
+        <input type="hidden" id="lat" />
+        <input type="hidden" id="lng" />
+      </div>
+
+      <div class="form-group">
+        <button id="addMarkerBtn" class="btn-primary">Add user marker</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <span class="legend-color" style="background:#007bff;"></span>
+        <span>Biophony</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background:#28a745;"></span>
+        <span>Geophony</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background:#fd7e14;"></span>
+        <span>Anthrophony</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background:#dc3545;"></span>
+        <span>Noise Pollution</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background:#6f42c1;"></span>
+        <span>Ecological Soundscapes</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background:#007bff; box-shadow:0 0 0 2px rgba(0,123,255,0.4);"></span>
+        <span>APSE Project Official Markers</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <script>
+    // Category styles: colored circles
+    const categoryStyles = {
+      biophony: { color: "#007bff", radius: 8 },
+      geophony: { color: "#28a745", radius: 8 },
+      anthrophony: { color: "#fd7e14", radius: 8 },
+      "noise-pollution": { color: "#dc3545", radius: 8 },
+      "ecological-soundscapes": { color: "#6f42c1", radius: 8 }
+    };
+
+    // Initialize map centered on Lama dei Peligni
+    const map = L.map("map").setView([42.043, 14.188], 13);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    // Base URL for official audio files (RAW GitHub)
+    const OFFICIAL_AUDIO_BASE =
+      "https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/";
+
+    function createOfficialMarker(data) {
+      const style = categoryStyles[data.category] || categoryStyles["biophony"];
+      const audioUrl = OFFICIAL_AUDIO_BASE + data.filename;
+
+      const marker = L.circleMarker([data.lat, data.lng], {
+        radius: style.radius,
+        color: style.color,
+        fillColor: style.color,
+        fillOpacity: 0.9
+      });
+
+      const popupHtml = `
+        <div>
+          <div class="badge-official">APSE Project Official Marker</div>
+          <div class="popup-title">${data.title}</div>
+          <div class="popup-category">Category: Biophony</div>
+          <div class="popup-description">${data.description}</div>
+          <audio controls style="width:100%;">
+            <source src="${audioUrl}" type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+          <div class="popup-footer">
+            Lama dei Peligni · Majella National Park<br/>
+            Lat: ${Number(data.lat).toFixed(5)}, Lng: ${Number(data.lng).toFixed(5)}
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml);
+      marker.addTo(map);
+    }
+
+    // Load official markers from external JSON (locked markers)
+    fetch("data/official-markers.json")
+      .then((response) => response.json())
+      .then((markers) => {
+        markers.forEach(createOfficialMarker);
+      })
+      .catch((err) => {
+        console.error("Error loading official markers JSON:", err);
+      });
+
+    // User markers
+    let userMarkerIdCounter = 1;
+    const userMarkers = new Map(); // id -> Leaflet layer
+
+    function getCategoryStyle(category) {
+      return categoryStyles[category] || categoryStyles["biophony"];
+    }
+
+    // Convert Archive.org details URL to embed URL
+    function archiveToEmbed(url) {
+      try {
+        const u = new URL(url);
+        if (u.hostname.includes("archive.org")) {
+          const parts = u.pathname.split("/").filter(Boolean);
+          const detailsIndex = parts.indexOf("details");
+          if (detailsIndex !== -1 && parts[detailsIndex + 1]) {
+            const id = parts[detailsIndex + 1];
+            return "https://archive.org/embed/" + id;
+          }
+        }
+      } catch (e) {
+        // ignore parse errors
+      }
+      return null;
+    }
+
+    function createUserMarker(lat, lng, data) {
+      const style = getCategoryStyle(data.category);
+      const marker = L.circleMarker([lat, lng], {
+        radius: style.radius,
+        color: style.color,
+        fillColor: style.color,
+        fillOpacity: 0.9
+      });
+
+      const id = userMarkerIdCounter++;
+      userMarkers.set(id, marker);
+
+      const embedUrl = archiveToEmbed(data.archiveUrl);
+      let mediaHtml = "";
+
+      if (embedUrl) {
+        mediaHtml = `
+          <iframe
+            src="${embedUrl}"
+            width="100%"
+            height="120"
+            frameborder="0"
+            webkitallowfullscreen
+            mozallowfullscreen
+            allowfullscreen
+          ></iframe>
+        `;
+      } else if (data.archiveUrl) {
+        mediaHtml = `
+          <div style="font-size:0.8rem; margin-bottom:0.25rem;">
+            <a href="${data.archiveUrl}" target="_blank" rel="noopener noreferrer">
+              Open audio on Archive.org
+            </a>
+          </div>
+        `;
+      }
+
+      const popupHtml = `
+        <div>
+          <div class="popup-title">${data.title || "User marker"}</div>
+          <div class="popup-category">Category: ${data.categoryLabel}</div>
+          <div class="popup-description">${data.description || ""}</div>
+          ${mediaHtml}
+          <button class="delete-btn" data-marker-id="${id}">Delete this marker</button>
+          <div class="popup-footer">
+            User-contributed marker<br/>
+            Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml);
+      marker.addTo(map);
+
+      marker.on("popupopen", function (e) {
+        const popupEl = e.popup.getElement();
+        if (!popupEl) return;
+        const btn = popupEl.querySelector(".delete-btn");
+        if (btn) {
+          btn.addEventListener("click", function () {
+            const markerId = Number(this.getAttribute("data-marker-id"));
+            const m = userMarkers.get(markerId);
+            if (m) {
+              map.removeLayer(m);
+              userMarkers.delete(markerId);
+            }
+          });
+        }
+      });
+    }
+
+    // Map click: select coordinates for new user marker
+    const latInput = document.getElementById("lat");
+    const lngInput = document.getElementById("lng");
+    const coordsDisplay = document.getElementById("coordsDisplay");
+
+    map.on("click", function (e) {
+      const { lat, lng } = e.latlng;
+      latInput.value = lat;
+      lngInput.value = lng;
+      coordsDisplay.textContent =
+        "Lat: " + lat.toFixed(5) + ", Lng: " + lng.toFixed(5);
+    });
+
+    // Add user marker button
+    const addMarkerBtn = document.getElementById("addMarkerBtn");
+    addMarkerBtn.addEventListener("click", function () {
+      const lat = parseFloat(latInput.value);
+      const lng = parseFloat(lngInput.value);
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const category = document.getElementById("category").value;
+      const archiveUrl = document.getElementById("archiveUrl").value.trim();
+
+      if (Number.isNaN(lat) || Number.isNaN(lng)) {
+        alert("Please click on the map to choose a location for your marker.");
+        return;
+      }
+
+      if (!archiveUrl) {
+        alert("Please provide an Archive.org URL for your audio.");
+        return;
+      }
+
+      const categoryLabelMap = {
+        biophony: "Biophony",
+        geophony: "Geophony",
+        anthrophony: "Anthrophony",
+        "noise-pollution": "Noise Pollution",
+        "ecological-soundscapes": "Ecological Soundscapes"
+      };
+
+      createUserMarker(lat, lng, {
+        title,
+        description,
+        category,
+        categoryLabel: categoryLabelMap[category] || category,
+        archiveUrl
+      });
+
+      document.getElementById("title").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("archiveUrl").value = "";
+    });
+  </script>
 </body>
 </html>
