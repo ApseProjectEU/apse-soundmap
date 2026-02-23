@@ -5,12 +5,9 @@
   <title>APSE Ecological Sound Map – Lama dei Peligni</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
   />
 
   <style>
@@ -18,7 +15,7 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, sans-serif;
       background: #f5f5f5;
     }
 
@@ -39,18 +36,11 @@
       font-weight: 600;
     }
 
-    .controls p {
-      margin: 0 0 0.75rem;
-      font-size: 0.9rem;
-      color: #555;
-    }
-
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 0.75rem 1rem;
       margin-top: 0.75rem;
-      align-items: flex-end;
     }
 
     .form-group {
@@ -60,11 +50,6 @@
       font-size: 0.85rem;
     }
 
-    .form-group label {
-      font-weight: 600;
-      color: #333;
-    }
-
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -72,13 +57,6 @@
       border-radius: 4px;
       border: 1px solid #ccc;
       font-size: 0.9rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 60px;
     }
 
     .btn-primary {
@@ -90,17 +68,6 @@
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .coords-display {
-      font-size: 0.8rem;
-      color: #555;
     }
 
     .legend {
@@ -112,12 +79,6 @@
       align-items: center;
     }
 
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
     .legend-color {
       width: 12px;
       height: 12px;
@@ -125,17 +86,19 @@
       border: 1px solid rgba(0, 0, 0, 0.2);
     }
 
+    /* 🔥 NUOVO BADGE ELEGANTE */
     .badge-official {
       display: inline-block;
-      padding: 0.15rem 0.4rem;
-      border-radius: 999px;
-      background: #007bff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #000;
       color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      margin-bottom: 0.25rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      border: 1px solid rgba(255,255,255,0.15);
+      margin-bottom: 6px;
+      font-family: "Segoe UI", sans-serif;
     }
 
     .popup-title {
@@ -143,21 +106,9 @@
       margin-bottom: 0.25rem;
     }
 
-    .popup-category {
-      font-size: 0.75rem;
-      color: #555;
-      margin-bottom: 0.25rem;
-    }
-
     .popup-description {
       font-size: 0.8rem;
       margin-bottom: 0.4rem;
-    }
-
-    .popup-footer {
-      font-size: 0.7rem;
-      color: #777;
-      margin-top: 0.25rem;
     }
 
     .delete-btn {
@@ -170,37 +121,28 @@
       color: #fff;
       cursor: pointer;
     }
-
-    @media (max-width: 600px) {
-      #map {
-        height: 60vh;
-      }
-    }
   </style>
 </head>
+
 <body>
   <div id="map"></div>
 
   <div class="controls">
     <h1>APSE Ecological Sound Map – Lama dei Peligni</h1>
-    <p>
-      Click on the map to select a location, then add your own marker using an Archive.org audio link.
-      Official APSE markers are pre-loaded, locked, and shown as blue circles.
-    </p>
 
     <div class="form-grid">
       <div class="form-group">
-        <label for="title">Title</label>
-        <input id="title" type="text" placeholder="Sound title" />
+        <label>Title</label>
+        <input id="title" type="text" />
       </div>
 
       <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" placeholder="Short description of the sound"></textarea>
+        <label>Description</label>
+        <textarea id="description"></textarea>
       </div>
 
       <div class="form-group">
-        <label for="category">Category</label>
+        <label>Category</label>
         <select id="category">
           <option value="biophony">Biophony</option>
           <option value="geophony">Geophony</option>
@@ -211,65 +153,24 @@
       </div>
 
       <div class="form-group">
-        <label for="archiveUrl">Archive.org URL</label>
-        <input
-          id="archiveUrl"
-          type="url"
-          placeholder="https://archive.org/details/your-audio-id"
-        />
+        <label>Archive.org URL</label>
+        <input id="archiveUrl" type="url" />
       </div>
 
       <div class="form-group">
-        <label>Selected coordinates</label>
-        <div class="coords-display" id="coordsDisplay">
-          Click on the map to choose a location.
-        </div>
+        <label>Coordinates</label>
+        <div id="coordsDisplay">Click on the map</div>
         <input type="hidden" id="lat" />
         <input type="hidden" id="lng" />
       </div>
 
-      <div class="form-group">
-        <button id="addMarkerBtn" class="btn-primary">Add user marker</button>
-      </div>
-    </div>
-
-    <div class="legend">
-      <div class="legend-item">
-        <span class="legend-color" style="background:#007bff;"></span>
-        <span>Biophony</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#28a745;"></span>
-        <span>Geophony</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#fd7e14;"></span>
-        <span>Anthrophony</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#dc3545;"></span>
-        <span>Noise Pollution</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#6f42c1;"></span>
-        <span>Ecological Soundscapes</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#007bff; box-shadow:0 0 0 2px rgba(0,123,255,0.4);"></span>
-        <span>APSE Project Official Markers</span>
-      </div>
+      <button id="addMarkerBtn" class="btn-primary">Add user marker</button>
     </div>
   </div>
 
-  <!-- Leaflet JS -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // Category styles: colored circles
     const categoryStyles = {
       biophony: { color: "#007bff", radius: 8 },
       geophony: { color: "#28a745", radius: 8 },
@@ -278,42 +179,36 @@
       "ecological-soundscapes": { color: "#6f42c1", radius: 8 }
     };
 
-    // Initialize map centered on Lama dei Peligni
     const map = L.map("map").setView([42.043, 14.188], 13);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors"
-    }).addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-    // Base URL for official audio files (RAW GitHub)
-    const OFFICIAL_AUDIO_BASE =
-      "https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/";
+    /* 🔥 NUOVA ICONA UFFICIALE NERA */
+    const officialIcon = L.icon({
+      iconUrl: "https://maps.gstatic.com/mapfiles/ms2/micons/black.png",
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
 
+    /* 🔥 MARKER UFFICIALI */
     function createOfficialMarker(data) {
-      const style = categoryStyles[data.category] || categoryStyles["biophony"];
-      const audioUrl = OFFICIAL_AUDIO_BASE + data.filename;
+      const audioUrl = "sounds/biophony/" + data.filename;
 
-      const marker = L.circleMarker([data.lat, data.lng], {
-        radius: style.radius,
-        color: style.color,
-        fillColor: style.color,
-        fillOpacity: 0.9
-      });
+      const marker = L.marker([data.lat, data.lng], { icon: officialIcon });
 
       const popupHtml = `
         <div>
-          <div class="badge-official">APSE Project Official Marker</div>
+          <div class="badge-official">APSE Official Sound Marker</div>
           <div class="popup-title">${data.title}</div>
-          <div class="popup-category">Category: Biophony</div>
           <div class="popup-description">${data.description}</div>
+
           <audio controls style="width:100%;">
             <source src="${audioUrl}" type="audio/mpeg" />
-            Your browser does not support the audio element.
           </audio>
-          <div class="popup-footer">
-            Lama dei Peligni · Majella National Park<br/>
-            Lat: ${Number(data.lat).toFixed(5)}, Lng: ${Number(data.lng).toFixed(5)}
+
+          <div style="font-size:0.75rem; margin-top:6px;">
+            Lat: ${data.lat.toFixed(5)}, Lng: ${data.lng.toFixed(5)}
           </div>
         </div>
       `;
@@ -322,44 +217,27 @@
       marker.addTo(map);
     }
 
-    // Load official markers from external JSON (locked markers)
     fetch("data/official-markers.json")
-      .then((response) => response.json())
-      .then((markers) => {
-        markers.forEach(createOfficialMarker);
-      })
-      .catch((err) => {
-        console.error("Error loading official markers JSON:", err);
-      });
+      .then(r => r.json())
+      .then(list => list.forEach(createOfficialMarker));
 
-    // User markers
-    let userMarkerIdCounter = 1;
-    const userMarkers = new Map(); // id -> Leaflet layer
-
-    function getCategoryStyle(category) {
-      return categoryStyles[category] || categoryStyles["biophony"];
-    }
-
-    // Convert Archive.org details URL to embed URL
+    /* 🔥 MARKER UTENTE */
     function archiveToEmbed(url) {
       try {
         const u = new URL(url);
         if (u.hostname.includes("archive.org")) {
           const parts = u.pathname.split("/").filter(Boolean);
-          const detailsIndex = parts.indexOf("details");
-          if (detailsIndex !== -1 && parts[detailsIndex + 1]) {
-            const id = parts[detailsIndex + 1];
-            return "https://archive.org/embed/" + id;
+          const idx = parts.indexOf("details");
+          if (idx !== -1 && parts[idx + 1]) {
+            return "https://archive.org/embed/" + parts[idx + 1];
           }
         }
-      } catch (e) {
-        // ignore parse errors
-      }
+      } catch {}
       return null;
     }
 
     function createUserMarker(lat, lng, data) {
-      const style = getCategoryStyle(data.category);
+      const style = categoryStyles[data.category];
       const marker = L.circleMarker([lat, lng], {
         radius: style.radius,
         color: style.color,
@@ -367,121 +245,53 @@
         fillOpacity: 0.9
       });
 
-      const id = userMarkerIdCounter++;
-      userMarkers.set(id, marker);
-
-      const embedUrl = archiveToEmbed(data.archiveUrl);
-      let mediaHtml = "";
-
-      if (embedUrl) {
-        mediaHtml = `
-          <iframe
-            src="${embedUrl}"
-            width="100%"
-            height="120"
-            frameborder="0"
-            webkitallowfullscreen
-            mozallowfullscreen
-            allowfullscreen
-          ></iframe>
-        `;
-      } else if (data.archiveUrl) {
-        mediaHtml = `
-          <div style="font-size:0.8rem; margin-bottom:0.25rem;">
-            <a href="${data.archiveUrl}" target="_blank" rel="noopener noreferrer">
-              Open audio on Archive.org
-            </a>
-          </div>
-        `;
-      }
+      const embed = archiveToEmbed(data.archiveUrl);
 
       const popupHtml = `
         <div>
-          <div class="popup-title">${data.title || "User marker"}</div>
-          <div class="popup-category">Category: ${data.categoryLabel}</div>
-          <div class="popup-description">${data.description || ""}</div>
-          ${mediaHtml}
-          <button class="delete-btn" data-marker-id="${id}">Delete this marker</button>
-          <div class="popup-footer">
-            User-contributed marker<br/>
-            Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}
-          </div>
+          <div class="popup-title">${data.title}</div>
+          <div class="popup-description">${data.description}</div>
+
+          ${
+            embed
+              ? `<iframe src="${embed}" width="100%" height="120"></iframe>`
+              : `<a href="${data.archiveUrl}" target="_blank">Open audio</a>`
+          }
+
+          <button class="delete-btn" onclick="map.removeLayer(window.m${lat}${lng})">
+            Delete
+          </button>
         </div>
       `;
 
+      window["m" + lat + lng] = marker;
+
       marker.bindPopup(popupHtml);
       marker.addTo(map);
-
-      marker.on("popupopen", function (e) {
-        const popupEl = e.popup.getElement();
-        if (!popupEl) return;
-        const btn = popupEl.querySelector(".delete-btn");
-        if (btn) {
-          btn.addEventListener("click", function () {
-            const markerId = Number(this.getAttribute("data-marker-id"));
-            const m = userMarkers.get(markerId);
-            if (m) {
-              map.removeLayer(m);
-              userMarkers.delete(markerId);
-            }
-          });
-        }
-      });
     }
 
-    // Map click: select coordinates for new user marker
-    const latInput = document.getElementById("lat");
-    const lngInput = document.getElementById("lng");
-    const coordsDisplay = document.getElementById("coordsDisplay");
-
-    map.on("click", function (e) {
-      const { lat, lng } = e.latlng;
-      latInput.value = lat;
-      lngInput.value = lng;
-      coordsDisplay.textContent =
-        "Lat: " + lat.toFixed(5) + ", Lng: " + lng.toFixed(5);
+    map.on("click", e => {
+      document.getElementById("lat").value = e.latlng.lat;
+      document.getElementById("lng").value = e.latlng.lng;
+      document.getElementById("coordsDisplay").textContent =
+        e.latlng.lat.toFixed(5) + ", " + e.latlng.lng.toFixed(5);
     });
 
-    // Add user marker button
-    const addMarkerBtn = document.getElementById("addMarkerBtn");
-    addMarkerBtn.addEventListener("click", function () {
-      const lat = parseFloat(latInput.value);
-      const lng = parseFloat(lngInput.value);
-      const title = document.getElementById("title").value.trim();
-      const description = document.getElementById("description").value.trim();
+    document.getElementById("addMarkerBtn").onclick = () => {
+      const lat = parseFloat(document.getElementById("lat").value);
+      const lng = parseFloat(document.getElementById("lng").value);
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
       const category = document.getElementById("category").value;
-      const archiveUrl = document.getElementById("archiveUrl").value.trim();
-
-      if (Number.isNaN(lat) || Number.isNaN(lng)) {
-        alert("Please click on the map to choose a location for your marker.");
-        return;
-      }
-
-      if (!archiveUrl) {
-        alert("Please provide an Archive.org URL for your audio.");
-        return;
-      }
-
-      const categoryLabelMap = {
-        biophony: "Biophony",
-        geophony: "Geophony",
-        anthrophony: "Anthrophony",
-        "noise-pollution": "Noise Pollution",
-        "ecological-soundscapes": "Ecological Soundscapes"
-      };
+      const archiveUrl = document.getElementById("archiveUrl").value;
 
       createUserMarker(lat, lng, {
         title,
         description,
         category,
-        categoryLabel: categoryLabelMap[category] || category,
         archiveUrl
       });
-
-      document.getElementById("title").value = "";
-      document.getElementById("description").value = "";
-      document.getElementById("archiveUrl").value = "";
-    });
+    };
   </script>
 </body>
 </html>
