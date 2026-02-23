@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>APSE Ecological Sound Map – Lama dei Peligni</title>
+<title>APSE Ecological Sound Map</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -36,7 +36,15 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background:#007bff;
+  }
+
+  .legend-color-biophony { background:#007bff; }
+  .legend-color-soundscape { background:#28a745; }
+
+  .badge-soundscape {
+    display:inline-block; background:#28a745; color:#fff;
+    padding:4px 10px; border-radius:6px; font-size:0.75rem;
+    margin-bottom:6px; font-weight:600;
   }
 </style>
 </head>
@@ -46,8 +54,8 @@
 <div id="map"></div>
 
 <div class="controls">
-  <h2>APSE Ecological Sound Map – Lama dei Peligni</h2>
-  <p>All official markers represent biophonic recordings. Users can add their own markers by clicking on the map.</p>
+  <h2>APSE Ecological Sound Map</h2>
+  <p>Official markers include biophonic recordings and soundscape field recordings from across Europe. Users can add their own markers by clicking on the map.</p>
 
   <h3>Upload your audio</h3>
 
@@ -67,7 +75,10 @@
   <h3>Legend</h3>
   <div class="legend">
     <div class="legend-item">
-      <span class="legend-color"></span> Biophony (official & user markers)
+      <span class="legend-color legend-color-biophony"></span> Biophony (Lama dei Peligni)
+    </div>
+    <div class="legend-item">
+      <span class="legend-color legend-color-soundscape"></span> Soundscape field recordings
     </div>
   </div>
 </div>
@@ -78,11 +89,11 @@
 // ---------------------------
 // MAP
 // ---------------------------
-const map = L.map("map").setView([42.043, 14.188], 13);
+const map = L.map("map").setView([39.5, 15.0], 5);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
 // ---------------------------
-// PIN ICON (Google Maps style)
+// PIN ICONS
 // ---------------------------
 const pinIcon = L.icon({
   iconUrl: "https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png",
@@ -91,12 +102,19 @@ const pinIcon = L.icon({
   popupAnchor: [0, -40]
 });
 
+const greenIcon = L.icon({
+  iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -30]
+});
+
 // ---------------------------
-// OFFICIAL MARKERS (ALL BIOPHONY)
+// BIOPHONY MARKERS (Lama dei Peligni)
 // ---------------------------
 const RAW = "https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/";
 
-const officialMarkers = [
+const biophonyMarkers = [
   {"filename":"european-robin.mp3","title":"European Robin","description":"Melodious song","lat":42.042,"lng":14.188},
   {"filename":"common-redstart.mp3","title":"Common Redstart","description":"Warbling calls","lat":42.044,"lng":14.190},
   {"filename":"common-raven.mp3","title":"Common Raven","description":"Deep croaking","lat":42.048,"lng":14.185},
@@ -119,13 +137,12 @@ const officialMarkers = [
   {"filename":"river-forest-binaural.mp3","title":"River Forest Binaural","description":"Immersive river","lat":42.040,"lng":14.184}
 ];
 
-officialMarkers.forEach(m => {
+biophonyMarkers.forEach(m => {
   const marker = L.marker([m.lat, m.lng], { icon: pinIcon });
-
   const audioUrl = RAW + m.filename;
 
   marker.bindPopup(`
-    <div class="badge-official">APSE Official Sound Marker</div>
+    <div class="badge-official">APSE Biophony</div>
     <b>${m.title}</b><br>
     ${m.description}<br><br>
     <audio controls style="width:100%;">
@@ -133,7 +150,52 @@ officialMarkers.forEach(m => {
     </audio>
   `);
 
-  // 🔥 ZOOM TO MARKER
+  marker.on("click", () => {
+    map.setView([m.lat, m.lng], 16, { animate: true });
+  });
+
+  marker.addTo(map);
+});
+
+// ---------------------------
+// SOUNDSCAPE FIELD RECORDINGS
+// ---------------------------
+const RAW_BASE = "https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/";
+
+const soundscapeMarkers = [
+  {"title":"Olympus Forest","lat":39.892,"lng":22.481,"description":"Sound from a stilt in a fir forest, May","audioUrl":"sounds/forest-demo.mp3","imageUrl":"images/kato-olympos.jpg"},
+  {"title":"Pertouli","lat":39.550,"lng":21.670,"description":"Winter sound with a stream","audioUrl":"sounds/rooster.mp3","imageUrl":"images/pertouli.jpg"},
+  {"title":"Javea Road","lat":38.779809,"lng":0.181256,"description":"Road sound","audioUrl":"sounds/road.mp3","imageUrl":"images/carretera.jpg"},
+  {"title":"Javea","lat":38.764424,"lng":0.217320,"description":"Summer sea sound","audioUrl":"sounds/sea waves.mp3","imageUrl":"images/cabo.jpg"},
+  {"title":"Montgo","lat":38.802847,"lng":0.129729,"description":"Mountain sound","audioUrl":"sounds/montgo.mp3","imageUrl":"images/montgo.jpg"},
+  {"title":"Central Square of Larisa","lat":39.638249,"lng":22.416073,"description":"Pedestrian Central Square","audioUrl":"sounds/parks.mp3","imageUrl":"images/square.jpg"},
+  {"title":"Nea Pefki","lat":39.470814372097266,"lng":21.366864183764626,"description":"Panigiri at Nea Pefki","audioUrl":"sounds/panigiri.mp3","imageUrl":"images/neapefki.jpg"},
+  {"title":"Waterfalls","lat":40.09109,"lng":22.42217,"description":"Waterfalls of Enipeas, Geophony","audioUrl":"sounds/waterfall.mp3","imageUrl":"images/enipeas.jpg"},
+  {"title":"Summer Noon Songs","lat":39.68900,"lng":22.88311,"description":"Cicadas at noon in Agiokampos, Biophony","audioUrl":"sounds/cicadas.mp3","imageUrl":"images/agiokampos.jpg"},
+  {"title":"Papa Nero","lat":39.408836,"lng":23.169815,"description":"Sea sound in Papa Nero","audioUrl":"sounds/papanerosounds.mp3","imageUrl":"images/PapaNero.jpg"},
+  {"title":"Lama dei Peligni","lat":42.042019627687274,"lng":14.188414423228808,"description":"Piazza Umberto I, Lama dei Peligni, Anthropophony","audioUrl":"sounds/Lama dei Peligni.mp3","imageUrl":"images/Lama.jpg"},
+  {"title":"Fonte Cannella","lat":42.04219890319058,"lng":14.188603518968804,"description":"Public Fountain Lama dei Peligni, water sound, Anthropophony","audioUrl":"sounds/smallfountain.mp3","imageUrl":"images/fontecannella.jpg"},
+  {"title":"Urban Cicadas","lat":39.62776706741196,"lng":22.398480642374643,"description":"Summer AM 11:00, Cicada with Birds in an urban space","audioUrl":"sounds/urbancicades.mp3","imageUrl":"images/Larisa.jpeg"},
+  {"title":"Argonafton 64","lat":39.357129,"lng":22.950445,"description":"Boat in a port","audioUrl":"sounds/boat1.mp3","imageUrl":"images/volos.jpg"},
+  {"title":"Nepal Earthquake","lat":28.25591677065024,"lng":83.78482652990989,"description":"Nepal Earthquake","audioUrl":"sounds/nepalearthquakesound.mp3","imageUrl":"images/nepalearthquake.jpg"},
+  {"title":"Pigeon in Thessaloniki","lat":40.63981494371413,"lng":22.95392273828219,"description":"Pigeon in Thessaloniki","audioUrl":"sounds/Pigeon.mp3","imageUrl":"images/pigeonskg.jpg"}
+];
+
+soundscapeMarkers.forEach(m => {
+  const marker = L.marker([m.lat, m.lng], { icon: greenIcon });
+  const audioUrl = RAW_BASE + m.audioUrl;
+  const imageUrl = RAW_BASE + m.imageUrl;
+
+  marker.bindPopup(`
+    <div class="badge-soundscape">APSE Soundscape</div>
+    <b>${m.title}</b><br>
+    ${m.description}<br><br>
+    <img src="${imageUrl}" alt="${m.title}" style="width:100%;max-height:150px;object-fit:cover;border-radius:6px;margin-bottom:8px;"><br>
+    <audio controls style="width:100%;">
+      <source src="${audioUrl}" type="audio/mpeg">
+    </audio>
+  `);
+
   marker.on("click", () => {
     map.setView([m.lat, m.lng], 16, { animate: true });
   });

@@ -158,5 +158,149 @@
     "lat": 42.040,
     "lng": 14.184,
     "category": "biophony"
+  },
+  {
+    "title": "Olympus Forest",
+    "description": "Sound from a stilt in a fir forest, May",
+    "lat": 39.892,
+    "lng": 22.481,
+    "audioUrl": "sounds/forest-demo.mp3",
+    "imageUrl": "images/kato-olympos.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Pertouli",
+    "description": "Winter sound with a stream",
+    "lat": 39.550,
+    "lng": 21.670,
+    "audioUrl": "sounds/rooster.mp3",
+    "imageUrl": "images/pertouli.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Javea Road",
+    "description": "Road sound",
+    "lat": 38.779809,
+    "lng": 0.181256,
+    "audioUrl": "sounds/road.mp3",
+    "imageUrl": "images/carretera.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Javea",
+    "description": "Summer sea sound",
+    "lat": 38.764424,
+    "lng": 0.217320,
+    "audioUrl": "sounds/sea waves.mp3",
+    "imageUrl": "images/cabo.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Montgo",
+    "description": "Mountain sound",
+    "lat": 38.802847,
+    "lng": 0.129729,
+    "audioUrl": "sounds/montgo.mp3",
+    "imageUrl": "images/montgo.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Central Square of Larisa",
+    "description": "Pedestrian Central Square",
+    "lat": 39.638249,
+    "lng": 22.416073,
+    "audioUrl": "sounds/parks.mp3",
+    "imageUrl": "images/square.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Nea Pefki",
+    "description": "Panigiri at Nea Pefki",
+    "lat": 39.470814372097266,
+    "lng": 21.366864183764626,
+    "audioUrl": "sounds/panigiri.mp3",
+    "imageUrl": "images/neapefki.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Waterfalls",
+    "description": "Waterfalls of Enipeas, Geophony",
+    "lat": 40.09109,
+    "lng": 22.42217,
+    "audioUrl": "sounds/waterfall.mp3",
+    "imageUrl": "images/enipeas.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Summer Noon Songs",
+    "description": "Cicadas at noon in Agiokampos, Biophony",
+    "lat": 39.68900,
+    "lng": 22.88311,
+    "audioUrl": "sounds/cicadas.mp3",
+    "imageUrl": "images/agiokampos.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Papa Nero",
+    "description": "Sea sound in Papa Nero",
+    "lat": 39.408836,
+    "lng": 23.169815,
+    "audioUrl": "sounds/papanerosounds.mp3",
+    "imageUrl": "images/PapaNero.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Lama dei Peligni",
+    "description": "Piazza Umberto I, Lama dei Peligni, Anthropophony",
+    "lat": 42.042019627687274,
+    "lng": 14.188414423228808,
+    "audioUrl": "sounds/Lama dei Peligni.mp3",
+    "imageUrl": "images/Lama.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Fonte Cannella",
+    "description": "Public Fountain Lama dei Peligni, water sound, Anthropophony",
+    "lat": 42.04219890319058,
+    "lng": 14.188603518968804,
+    "audioUrl": "sounds/smallfountain.mp3",
+    "imageUrl": "images/fontecannella.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Urban Cicadas",
+    "description": "Summer AM 11:00, Cicada with Birds in an urban space",
+    "lat": 39.62776706741196,
+    "lng": 22.398480642374643,
+    "audioUrl": "sounds/urbancicades.mp3",
+    "imageUrl": "images/Larisa.jpeg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Argonafton 64",
+    "description": "Boat in a port",
+    "lat": 39.357129,
+    "lng": 22.950445,
+    "audioUrl": "sounds/boat1.mp3",
+    "imageUrl": "images/volos.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Nepal Earthquake",
+    "description": "Nepal Earthquake",
+    "lat": 28.25591677065024,
+    "lng": 83.78482652990989,
+    "audioUrl": "sounds/nepalearthquakesound.mp3",
+    "imageUrl": "images/nepalearthquake.jpg",
+    "category": "soundscape"
+  },
+  {
+    "title": "Pigeon in Thessaloniki",
+    "description": "Pigeon in Thessaloniki",
+    "lat": 40.63981494371413,
+    "lng": 22.95392273828219,
+    "audioUrl": "sounds/Pigeon.mp3",
+    "imageUrl": "images/pigeonskg.jpg",
+    "category": "soundscape"
   }
 ]
