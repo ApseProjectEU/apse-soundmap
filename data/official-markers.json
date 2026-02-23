@@ -1,0 +1,162 @@
+[
+  {
+    "filename": "european-robin.mp3",
+    "title": "European Robin",
+    "description": "Melodious song of the European Robin recorded in Majella National Park woodland habitat during dawn chorus",
+    "lat": 42.042,
+    "lng": 14.188,
+    "category": "biophony"
+  },
+  {
+    "filename": "common-redstart.mp3",
+    "title": "Common Redstart",
+    "description": "Distinctive warbling calls of Common Redstart in mountain forest edge habitat",
+    "lat": 42.044,
+    "lng": 14.190,
+    "category": "biophony"
+  },
+  {
+    "filename": "common-raven.mp3",
+    "title": "Common Raven",
+    "description": "Deep croaking vocalizations of Common Ravens soaring over Majella mountain ridges",
+    "lat": 42.048,
+    "lng": 14.185,
+    "category": "biophony"
+  },
+  {
+    "filename": "great-tit.mp3",
+    "title": "Great Tit",
+    "description": "Characteristic two-syllable song of Great Tit in mixed woodland near Lama dei Peligni village",
+    "lat": 42.040,
+    "lng": 14.192,
+    "category": "biophony"
+  },
+  {
+    "filename": "common-kestrel.mp3",
+    "title": "Common Kestrel",
+    "description": "High-pitched calls of Common Kestrel hovering over open grasslands at Chamois Oasis",
+    "lat": 42.046,
+    "lng": 14.182,
+    "category": "biophony"
+  },
+  {
+    "filename": "peregrine-falcon.mp3",
+    "title": "Peregrine Falcon",
+    "description": "Sharp alarm calls of Peregrine Falcon defending cliff nesting territory in the Majella massif",
+    "lat": 42.050,
+    "lng": 14.188,
+    "category": "biophony"
+  },
+  {
+    "filename": "golden-eagle.mp3",
+    "title": "Golden Eagle",
+    "description": "Majestic calls of Golden Eagle, apex predator of the Majella ecosystem, recorded at high altitude",
+    "lat": 42.052,
+    "lng": 14.195,
+    "category": "biophony"
+  },
+  {
+    "filename": "common-buzzard.mp3",
+    "title": "Common Buzzard",
+    "description": "Mewing calls of Common Buzzard circling over mixed agricultural and forest landscape",
+    "lat": 42.038,
+    "lng": 14.186,
+    "category": "biophony"
+  },
+  {
+    "filename": "dalmatian-woodpecker.mp3",
+    "title": "Dalmatian Woodpecker",
+    "description": "Drumming and calls of rare Dalmatian Woodpecker in mature beech forest near the monastery",
+    "lat": 42.043,
+    "lng": 14.189,
+    "category": "biophony"
+  },
+  {
+    "filename": "barn-swallow.mp3",
+    "title": "Barn Swallow",
+    "description": "Twittering flight calls of Barn Swallows hunting insects over village rooftops",
+    "lat": 42.041,
+    "lng": 14.187,
+    "category": "biophony"
+  },
+  {
+    "filename": "house-martin.mp3",
+    "title": "House Martin",
+    "description": "Social calls of House Martin colony nesting under building eaves in traditional architecture",
+    "lat": 42.042,
+    "lng": 14.190,
+    "category": "biophony"
+  },
+  {
+    "filename": "eurasian-treecreeper.mp3",
+    "title": "Eurasian Treecreeper",
+    "description": "Thin high-pitched song of Eurasian Treecreeper foraging on ancient oak bark",
+    "lat": 42.045,
+    "lng": 14.191,
+    "category": "biophony"
+  },
+  {
+    "filename": "common-chaffinch.mp3",
+    "title": "Common Chaffinch",
+    "description": "Cascading territorial song of male Common Chaffinch in mixed deciduous woodland",
+    "lat": 42.039,
+    "lng": 14.189,
+    "category": "biophony"
+  },
+  {
+    "filename": "goldcrest.mp3",
+    "title": "Goldcrest",
+    "description": "Europe's smallest bird, the Goldcrest, with its needle-thin calls in conifer canopy",
+    "lat": 42.047,
+    "lng": 14.187,
+    "category": "biophony"
+  },
+  {
+    "filename": "eurasian-blackcap.mp3",
+    "title": "Eurasian Blackcap",
+    "description": "Rich melodious warbling of Eurasian Blackcap in dense shrubland undergrowth",
+    "lat": 42.044,
+    "lng": 14.193,
+    "category": "biophony"
+  },
+  {
+    "filename": "red-deer-roaring.mp3",
+    "title": "Red Deer Roaring",
+    "description": "Powerful autumn rutting calls of red deer stag echoing through mountain valleys",
+    "lat": 42.049,
+    "lng": 14.183,
+    "category": "biophony"
+  },
+  {
+    "filename": "tree-frogs-river.mp3",
+    "title": "Tree Frogs by River",
+    "description": "Nocturnal chorus of tree frogs creating complex acoustic patterns near mountain stream",
+    "lat": 42.043,
+    "lng": 14.185,
+    "category": "biophony"
+  },
+  {
+    "filename": "buzzards-crows-pine-forest.mp3",
+    "title": "Buzzards and Crows",
+    "description": "Interspecies acoustic interactions between buzzards and hooded crows in pine forest habitat",
+    "lat": 42.046,
+    "lng": 14.194,
+    "category": "biophony"
+  },
+  {
+    "filename": "hifi-soundscape-lama.mp3",
+    "title": "Lama dei Peligni Hi-Fi Soundscape",
+    "description": "High-fidelity biophonic recording capturing the complete biodiversity acoustic signature of Lama dei Peligni",
+    "lat": 42.041,
+    "lng": 14.191,
+    "category": "biophony"
+  },
+  {
+    "filename": "river-forest-binaural.mp3",
+    "title": "River Forest Binaural Recording",
+    "description": "Immersive binaural stereo capture of river ecosystem and surrounding forest acoustic environment",
+    "lat": 42.040,
+    "lng": 14.184,
+    "category": "biophony"
+  }
+]
