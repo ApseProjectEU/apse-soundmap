@@ -1,404 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>APSE Ecological Sound Map – Lama dei Peligni</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>APSE Sound Map – Lama dei Peligni</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: system-ui, sans-serif;
-      background: #f5f5f5;
-    }
-
-    #map {
-      width: 100%;
-      height: 70vh;
-    }
-
-    .controls {
-      padding: 1rem 1.5rem 1.5rem;
-      background: #ffffff;
-      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    .controls h1 {
-      margin: 0 0 0.5rem;
-      font-size: 1.4rem;
-      font-weight: 600;
-    }
-
-    .controls p {
-      margin: 0 0 0.75rem;
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 0.75rem 1rem;
-      margin-top: 0.75rem;
-      align-items: flex-end;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      font-size: 0.85rem;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      padding: 0.4rem 0.5rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 0.9rem;
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 60px;
-    }
-
-    .btn-primary {
-      padding: 0.5rem 0.9rem;
-      border-radius: 4px;
-      border: none;
-      background: #007bff;
-      color: #fff;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .coords-display {
-      font-size: 0.8rem;
-      color: #555;
-    }
-
-    .legend {
-      margin-top: 0.75rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      font-size: 0.8rem;
-      align-items: center;
-    }
-
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .legend-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 1px solid rgba(0, 0, 0, 0.2);
-    }
-
-    .badge-official {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: #000;
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.4px;
-      border: 1px solid rgba(255,255,255,0.15);
-      margin-bottom: 6px;
-      font-family: "Segoe UI", sans-serif;
-    }
-
-    .popup-title {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .popup-category {
-      font-size: 0.75rem;
-      color: #555;
-      margin-bottom: 0.25rem;
-    }
-
-    .popup-description {
-      font-size: 0.8rem;
-      margin-bottom: 0.4rem;
-    }
-
-    .popup-footer {
-      font-size: 0.75rem;
-      color: #777;
-      margin-top: 0.25rem;
-    }
-
-    .delete-btn {
-      margin-top: 0.4rem;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-      border-radius: 4px;
-      border: none;
-      background: #dc3545;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      #map {
-        height: 60vh;
-      }
-    }
-  </style>
+<style>
+  html, body { margin:0; padding:0; height:100%; font-family:sans-serif; }
+  #map { height:70vh; width:100%; }
+  .controls { padding:1rem; background:#fff; }
+  .badge-official {
+    display:inline-block; background:#000; color:#fff;
+    padding:4px 10px; border-radius:6px; font-size:0.75rem;
+    margin-bottom:6px; font-weight:600;
+  }
+</style>
 </head>
+
 <body>
-  <div id="map"></div>
 
-  <div class="controls">
-    <h1>APSE Ecological Sound Map – Lama dei Peligni</h1>
-    <p>
-      Official APSE markers (biophony) are pre-loaded and locked. Click on the map to add your own markers using Archive.org audio links.
-    </p>
+<div id="map"></div>
 
-    <div class="form-grid">
-      <div class="form-group">
-        <label for="title">Title</label>
-        <input id="title" type="text" placeholder="Sound title" />
-      </div>
+<div class="controls">
+  <h2>APSE Ecological Sound Map – Lama dei Peligni</h2>
+  <p>I marker ufficiali sono cerchi neri. Gli utenti possono aggiungere marker cliccando sulla mappa.</p>
 
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" placeholder="Short description of the sound"></textarea>
-      </div>
+  <label>Titolo</label><br>
+  <input id="title" style="width:100%;"><br><br>
 
-      <div class="form-group">
-        <label for="category">Category</label>
-        <select id="category">
-          <option value="biophony">Biophony</option>
-          <option value="geophony">Geophony</option>
-          <option value="anthrophony">Anthrophony</option>
-          <option value="noise-pollution">Noise Pollution</option>
-          <option value="ecological-soundscapes">Ecological Soundscapes</option>
-        </select>
-      </div>
+  <label>Descrizione</label><br>
+  <textarea id="description" style="width:100%;"></textarea><br><br>
 
-      <div class="form-group">
-        <label for="archiveUrl">Archive.org URL</label>
-        <input
-          id="archiveUrl"
-          type="url"
-          placeholder="https://archive.org/details/your-audio-id"
-        />
-      </div>
+  <label>Archive.org URL</label><br>
+  <input id="archiveUrl" style="width:100%;"><br><br>
 
-      <div class="form-group">
-        <label>Selected coordinates</label>
-        <div class="coords-display" id="coordsDisplay">
-          Click on the map to choose a location.
-        </div>
-        <input type="hidden" id="lat" />
-        <input type="hidden" id="lng" />
-      </div>
+  <button id="addMarker">Aggiungi marker utente</button>
 
-      <div class="form-group">
-        <button id="addMarkerBtn" class="btn-primary">Add user marker</button>
-      </div>
-    </div>
+  <p id="coords">Clicca sulla mappa per selezionare coordinate</p>
+</div>
 
-    <div class="legend">
-      <div class="legend-item">
-        <span class="legend-color" style="background:#007bff;"></span>
-        <span>Biophony</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#28a745;"></span>
-        <span>Geophony</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#fd7e14;"></span>
-        <span>Anthrophony</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#dc3545;"></span>
-        <span>Noise Pollution</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#6f42c1;"></span>
-        <span>Ecological Soundscapes</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background:#000; box-shadow:0 0 0 2px rgba(0,0,0,0.4);"></span>
-        <span>APSE Official Sound Markers</span>
-      </div>
-    </div>
-  </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ---------------------------
+// MAPPA
+// ---------------------------
+const map = L.map("map").setView([42.043, 14.188], 13);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-  <script>
-    // OFFICIAL MARKERS DATA (inline, niente JSON esterno)
-    const officialMarkers = [
-      {
-        "filename": "european-robin.mp3",
-        "title": "European Robin",
-        "description": "Melodious song of the European Robin recorded in Majella National Park woodland habitat during dawn chorus",
-        "lat": 42.042,
-        "lng": 14.188,
-        "category": "biophony"
-      },
-      {
-        "filename": "common-redstart.mp3",
-        "title": "Common Redstart",
-        "description": "Distinctive warbling calls of Common Redstart in mountain forest edge habitat",
-        "lat": 42.044,
-        "lng": 14.190,
-        "category": "biophony"
-      },
-      {
-        "filename": "common-raven.mp3",
-        "title": "Common Raven",
-        "description": "Deep croaking vocalizations of Common Ravens soaring over Majella mountain ridges",
-        "lat": 42.048,
-        "lng": 14.185,
-        "category": "biophony"
-      },
-      {
-        "filename": "great-tit.mp3",
-        "title": "Great Tit",
-        "description": "Characteristic two-syllable song of Great Tit in mixed woodland near Lama dei Peligni village",
-        "lat": 42.040,
-        "lng": 14.192,
-        "category": "biophony"
-      },
-      {
-        "filename": "common-kestrel.mp3",
-        "title": "Common Kestrel",
-        "description": "High-pitched calls of Common Kestrel hovering over open grasslands at Chamois Oasis",
-        "lat": 42.046,
-        "lng": 14.182,
-        "category": "biophony"
-      },
-      {
-        "filename": "peregrine-falcon.mp3",
-        "title": "Peregrine Falcon",
-        "description": "Sharp alarm calls of Peregrine Falcon defending cliff nesting territory in the Majella massif",
-        "lat": 42.050,
-        "lng": 14.188,
-        "category": "biophony"
-      },
-      {
-        "filename": "golden-eagle.mp3",
-        "title": "Golden Eagle",
-        "description": "Majestic calls of Golden Eagle, apex predator of the Majella ecosystem, recorded at high altitude",
-        "lat": 42.052,
-        "lng": 14.195,
-        "category": "biophony"
-      },
-      {
-        "filename": "common-buzzard.mp3",
-        "title": "Common Buzzard",
-        "description": "Mewing calls of Common Buzzard circling over mixed agricultural and forest landscape",
-        "lat": 42.038,
-        "lng": 14.186,
-        "category": "biophony"
-      },
-      {
-        "filename": "dalmatian-woodpecker.mp3",
-        "title": "Dalmatian Woodpecker",
-        "description": "Drumming and calls of rare Dalmatian Woodpecker in mature beech forest near the monastery",
-        "lat": 42.043,
-        "lng": 14.189,
-        "category": "biophony"
-      },
-      {
-        "filename": "barn-swallow.mp3",
-        "title": "Barn Swallow",
-        "description": "Twittering flight calls of Barn Swallows hunting insects over village rooftops",
-        "lat": 42.041,
-        "lng": 14.187,
-        "category": "biophony"
-      },
-      {
-        "filename": "house-martin.mp3",
-        "title": "House Martin",
-        "description": "Social calls of House Martin colony nesting under building eaves in traditional architecture",
-        "lat": 42.042,
-        "lng": 14.190,
-        "category": "biophony"
-      },
-      {
-        "filename": "eurasian-treecreeper.mp3",
-        "title": "Eurasian Treecreeper",
-        "description": "Thin high-pitched song of Eurasian Treecreeper foraging on ancient oak bark",
-        "lat": 42.045,
-        "lng": 14.191,
-        "category": "biophony"
-      },
-      {
-        "filename": "common-chaffinch.mp3",
-        "title": "Common Chaffinch",
-        "description": "Cascading territorial song of male Common Chaffinch in mixed deciduous woodland",
-        "lat": 42.039,
-        "lng": 14.189,
-        "category": "biophony"
-      },
-      {
-        "filename": "goldcrest.mp3",
-        "title": "Goldcrest",
-        "description": "Europe's smallest bird, the Goldcrest, with its needle-thin calls in conifer canopy",
-        "lat": 42.047,
-        "lng": 14.187,
-        "category": "biophony"
-      },
-      {
-        "filename": "eurasian-blackcap.mp3",
-        "title": "Eurasian Blackcap",
-        "description": "Rich melodious warbling of Eurasian Blackcap in dense shrubland undergrowth",
-        "lat": 42.044,
-        "lng": 14.193,
-        "category": "biophony"
-      },
-      {
-        "filename": "red-deer-roaring.mp3",
-        "title": "Red Deer Roaring",
-        "description": "Powerful autumn rutting calls of red deer stag echoing through mountain valleys",
-        "lat": 42.049,
-        "lng": 14.183,
-        "category": "biophony"
-      },
-      {
-        "filename": "tree-frogs-river.mp3",
-        "title": "Tree Frogs by River",
-        "description": "Nocturnal chorus of tree frogs creating complex acoustic patterns near mountain stream",
-        "lat": 42.043,
-        "lng": 14.185,
-        "category": "biophony"
-      },
-      {
-        "filename": "buzzards-crows-pine-forest.mp3",
-        "title": "Buzzards and Crows",
-        "description": "Interspecies acoustic interactions between buzzards and hooded crows in pine forest habitat",
-        "lat": 42.046,
-        "lng": 14.194,
-        "category": "biophony"
-      },
-      {
-        "filename": "hifi-soundscape-lama.mp3",
-        "title": "Lama dei Peligni Hi-Fi Soundscape",
-        "description": "High-fidelity biophonic recording capturing the complete biodiversity acoustic signature of Lama dei Peligni",
-        "lat": 42.041,
-        "lng": 14.191,
-        "category
+// ---------------------------
+// MARKER UFFICIALI (20 BIOPHONY)
+// ---------------------------
+const RAW = "https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/";
+
+const officialMarkers = [
+  {"filename":"european-robin.mp3","title":"European Robin","description":"Melodious song","lat":42.042,"lng":14.188},
+  {"filename":"common-redstart.mp3","title":"Common Redstart","description":"Warbling calls","lat":42.044,"lng":14.190},
+  {"filename":"common-raven.mp3","title":"Common Raven","description":"Deep croaking","lat":42.048,"lng":14.185},
+  {"filename":"great-tit.mp3","title":"Great Tit","description":"Two-syllable song","lat":42.040,"lng":14.192},
+  {"filename":"common-kestrel.mp3","title":"Common Kestrel","description":"High-pitched calls","lat":42.046,"lng":14.182},
+  {"filename":"peregrine-falcon.mp3","title":"Peregrine Falcon","description":"Sharp alarm calls","lat":42.050,"lng":14.188},
+  {"filename":"golden-eagle.mp3","title":"Golden Eagle","description":"Majestic calls","lat":42.052,"lng":14.195},
+  {"filename":"common-buzzard.mp3","title":"Common Buzzard","description":"Mewing calls","lat":42.038,"lng":14.186},
+  {"filename":"dalmatian-woodpecker.mp3","title":"Dalmatian Woodpecker","description":"Drumming","lat":42.043,"lng":14.189},
+  {"filename":"barn-swallow.mp3","title":"Barn Swallow","description":"Twittering","lat":42.041,"lng":14.187},
+  {"filename":"house-martin.mp3","title":"House Martin","description":"Social calls","lat":42.042,"lng":14.190},
+  {"filename":"eurasian-treecreeper.mp3","title":"Eurasian Treecreeper","description":"High-pitched song","lat":42.045,"lng":14.191},
+  {"filename":"common-chaffinch.mp3","title":"Common Chaffinch","description":"Territorial song","lat":42.039,"lng":14.189},
+  {"filename":"goldcrest.mp3","title":"Goldcrest","description":"Needle-thin calls","lat":42.047,"lng":14.187},
+  {"filename":"eurasian-blackcap.mp3","title":"Eurasian Blackcap","description":"Melodious warbling","lat":42.044,"lng":14.193},
+  {"filename":"red-deer-roaring.mp3","title":"Red Deer Roaring","description":"Rutting calls","lat":42.049,"lng":14.183},
+  {"filename":"tree-frogs-river.mp3","title":"Tree Frogs","description":"Nocturnal chorus","lat":42.043,"lng":14.185},
+  {"filename":"buzzards-crows-pine-forest.mp3","title":"Buzzards & Crows","description":"Interspecies calls","lat":42.046,"lng":14.194},
+  {"filename":"hifi-soundscape-lama.mp3","title":"Hi-Fi Soundscape","description":"Full ecosystem","lat":42.041,"lng":14.191},
+  {"filename":"river-forest-binaural.mp3","title":"River Forest Binaural","description":"Immersive river","lat":42.040,"lng":14.184}
+];
+
+officialMarkers.forEach(m => {
+  const marker = L.circleMarker([m.lat, m.lng], {
+    radius: 9,
+    color: "#000",
+    fillColor: "#000",
+    fillOpacity: 1
+  });
+
+  const audioUrl = RAW + m.filename;
+
+  marker.bindPopup(`
+    <div class="badge-official">APSE Official Sound Marker</div>
+    <b>${m.title}</b><br>
+    ${m.description}<br><br>
+    <audio controls style="width:100%;">
+      <source src="${audioUrl}" type="audio/mpeg">
+    </audio>
+  `);
+
+  marker.addTo(map);
+});
+
+// ---------------------------
+// MARKER UTENTE
+// ---------------------------
+let selectedLat = null;
+let selectedLng = null;
+
+map.on("click", e => {
+  selectedLat = e.latlng.lat;
+  selectedLng = e.latlng.lng;
+  document.getElementById("coords").innerText =
+    "Coordinate: " + selectedLat.toFixed(5) + ", " + selectedLng.toFixed(5);
+});
+
+document.getElementById("addMarker").onclick = () => {
+  if (!selectedLat) {
+    alert("Clicca sulla mappa prima.");
+    return;
+  }
+
+  const title = document.getElementById("title").value;
+  const description = document.getElementById("description").value;
+  const url = document.getElementById("archiveUrl").value;
+
+  const marker = L.circleMarker([selectedLat, selectedLng], {
+    radius: 8,
+    color: "#007bff",
+    fillColor: "#007bff",
+    fillOpacity: 0.9
+  });
+
+  marker.bindPopup(`
+    <b>${title}</b><br>
+    ${description}<br><br>
+    <iframe src="https://archive.org/embed/${url.split('/').pop()}"
+            width="100%" height="120"></iframe>
+  `);
+
+  marker.addTo(map);
+};
+</script>
+
+</body>
+</html>
