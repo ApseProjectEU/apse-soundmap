@@ -92,54 +92,34 @@ const pinIcon = L.icon({
 });
 
 // ---------------------------
-// OFFICIAL MARKERS (ALL BIOPHONY)
+// OFFICIAL MARKERS (LOADED FROM JSON)
 // ---------------------------
 const RAW = "https://raw.githubusercontent.com/ApseProjectEU/apse-soundmap/main/sounds/biophony/";
 
-const officialMarkers = [
-  {"filename":"european-robin.mp3","title":"European Robin","description":"Melodious song","lat":42.042,"lng":14.188},
-  {"filename":"common-redstart.mp3","title":"Common Redstart","description":"Warbling calls","lat":42.044,"lng":14.190},
-  {"filename":"common-raven.mp3","title":"Common Raven","description":"Deep croaking","lat":42.048,"lng":14.185},
-  {"filename":"great-tit.mp3","title":"Great Tit","description":"Two-syllable song","lat":42.040,"lng":14.192},
-  {"filename":"common-kestrel.mp3","title":"Common Kestrel","description":"High-pitched calls","lat":42.046,"lng":14.182},
-  {"filename":"peregrine-falcon.mp3","title":"Peregrine Falcon","description":"Sharp alarm calls","lat":42.050,"lng":14.188},
-  {"filename":"golden-eagle.mp3","title":"Golden Eagle","description":"Majestic calls","lat":42.052,"lng":14.195},
-  {"filename":"common-buzzard.mp3","title":"Common Buzzard","description":"Mewing calls","lat":42.038,"lng":14.186},
-  {"filename":"dalmatian-woodpecker.mp3","title":"Dalmatian Woodpecker","description":"Drumming","lat":42.043,"lng":14.189},
-  {"filename":"barn-swallow.mp3","title":"Barn Swallow","description":"Twittering","lat":42.041,"lng":14.187},
-  {"filename":"house-martin.mp3","title":"House Martin","description":"Social calls","lat":42.042,"lng":14.190},
-  {"filename":"eurasian-treecreeper.mp3","title":"Eurasian Treecreeper","description":"High-pitched song","lat":42.045,"lng":14.191},
-  {"filename":"common-chaffinch.mp3","title":"Common Chaffinch","description":"Territorial song","lat":42.039,"lng":14.189},
-  {"filename":"goldcrest.mp3","title":"Goldcrest","description":"Needle-thin calls","lat":42.047,"lng":14.187},
-  {"filename":"eurasian-blackcap.mp3","title":"Eurasian Blackcap","description":"Melodious warbling","lat":42.044,"lng":14.193},
-  {"filename":"red-deer-roaring.mp3","title":"Red Deer Roaring","description":"Rutting calls","lat":42.049,"lng":14.183},
-  {"filename":"tree-frogs-river.mp3","title":"Tree Frogs","description":"Nocturnal chorus","lat":42.043,"lng":14.185},
-  {"filename":"buzzards-crows-pine-forest.mp3","title":"Buzzards & Crows","description":"Interspecies calls","lat":42.046,"lng":14.194},
-  {"filename":"hifi-soundscape-lama.mp3","title":"Hi-Fi Soundscape","description":"Full ecosystem","lat":42.041,"lng":14.191},
-  {"filename":"river-forest-binaural.mp3","title":"River Forest Binaural","description":"Immersive river","lat":42.040,"lng":14.184}
-];
+fetch("data/official-markers.json")
+  .then(response => response.json())
+  .then(data => {
+    data.forEach(m => {
+      const marker = L.marker([m.lat, m.lng], { icon: pinIcon });
 
-officialMarkers.forEach(m => {
-  const marker = L.marker([m.lat, m.lng], { icon: pinIcon });
+      const audioUrl = RAW + m.filename;
 
-  const audioUrl = RAW + m.filename;
+      marker.bindPopup(`
+        <div class="badge-official">APSE Official Sound Marker</div>
+        <b>${m.title}</b><br>
+        ${m.description}<br><br>
+        <audio controls style="width:100%;">
+          <source src="${audioUrl}" type="audio/mpeg">
+        </audio>
+      `);
 
-  marker.bindPopup(`
-    <div class="badge-official">APSE Official Sound Marker</div>
-    <b>${m.title}</b><br>
-    ${m.description}<br><br>
-    <audio controls style="width:100%;">
-      <source src="${audioUrl}" type="audio/mpeg">
-    </audio>
-  `);
+      marker.on("click", () => {
+        map.setView([m.lat, m.lng], 16, { animate: true });
+      });
 
-  // 🔥 ZOOM TO MARKER
-  marker.on("click", () => {
-    map.setView([m.lat, m.lng], 16, { animate: true });
+      marker.addTo(map);
+    });
   });
-
-  marker.addTo(map);
-});
 
 // ---------------------------
 // USER MARKERS (ALSO PIN ICON)
